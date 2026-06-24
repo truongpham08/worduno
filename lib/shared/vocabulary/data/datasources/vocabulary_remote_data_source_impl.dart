@@ -16,7 +16,16 @@ class VocabularyRemoteDataSourceImpl implements IVocabularyRemoteDataSource {
   Future<List<LevelDto>> getLevels() async {
     try {
       final response = await _dio.get<dynamic>(ApiConstants.levelsPath);
-      return _parseList(response.data, LevelDto.fromJson);
+      final data = response.data;
+
+      // API returns: ["b1", "b2", "c1&c2"]
+      if (data is List) {
+        return data
+            .whereType<String>()
+            .map((code) => LevelDto(code: code))
+            .toList(growable: false);
+      }
+      return const [];
     } catch (error) {
       throw AppException('Failed to load levels: $error');
     }
@@ -27,7 +36,21 @@ class VocabularyRemoteDataSourceImpl implements IVocabularyRemoteDataSource {
     try {
       final response =
           await _dio.get<dynamic>(ApiConstants.unitsPath(levelCode));
-      return _parseList(response.data, UnitDto.fromJson);
+      final data = response.data;
+
+      // API returns: ["Phrasal verbs", "Problems and solutions", ...]
+      if (data is List) {
+        return data
+            .whereType<String>()
+            .mapIndexed(
+              (index, name) => UnitDto(
+                id: '$levelCode-$index',
+                name: name,
+              ),
+            )
+            .toList(growable: false);
+      }
+      return const [];
     } catch (error) {
       throw AppException('Failed to load units: $error');
     }
@@ -42,33 +65,28 @@ class VocabularyRemoteDataSourceImpl implements IVocabularyRemoteDataSource {
       final response = await _dio.get<dynamic>(
         ApiConstants.termsPath(levelCode, unitName),
       );
-      return _parseList(response.data, TermDto.fromJson);
+      final data = response.data;
+
+      // API returns: [{"term": "add up", "definition": "tính tổng số"}, ...]
+      if (data is List) {
+        return data
+            .whereType<Map<String, dynamic>>()
+            .map(TermDto.fromJson)
+            .toList(growable: false);
+      }
+      return const [];
     } catch (error) {
       throw AppException('Failed to load terms: $error');
     }
   }
+}
 
-  List<T> _parseList<T>(
-    dynamic data,
-    T Function(Map<String, dynamic> json) fromJson,
-  ) {
-    if (data is List) {
-      return data
-          .whereType<Map<String, dynamic>>()
-          .map(fromJson)
-          .toList(growable: false);
+// Helper extension for indexed map
+extension _IterableIndexed<T> on Iterable<T> {
+  Iterable<R> mapIndexed<R>(R Function(int index, T element) f) sync* {
+    var index = 0;
+    for (final element in this) {
+      yield f(index++, element);
     }
-
-    if (data is Map<String, dynamic>) {
-      final items = data['items'] ?? data['data'];
-      if (items is List) {
-        return items
-            .whereType<Map<String, dynamic>>()
-            .map(fromJson)
-            .toList(growable: false);
-      }
-    }
-
-    return const [];
   }
 }
