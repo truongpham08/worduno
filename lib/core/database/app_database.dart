@@ -1,5 +1,7 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class AppDatabase {
   AppDatabase();
@@ -17,6 +19,10 @@ class AppDatabase {
   }
 
   Future<Database> _open() async {
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'worduno.db');
 
