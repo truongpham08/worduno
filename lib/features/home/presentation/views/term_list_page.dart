@@ -41,7 +41,6 @@ class TermListPage extends StatefulWidget {
 
 class _TermListPageState extends State<TermListPage> {
   late final TermListViewModel _viewModel;
-  String? _lastTopPath;
 
   @override
   void initState() {
@@ -64,24 +63,6 @@ class _TermListPageState extends State<TermListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final nav = context.watch<AppNavigationNotifier>();
-    final stack = nav.configuration.homeStack;
-    if (stack.isNotEmpty) {
-      final topEntry = stack.last;
-      if (topEntry.path == HomeRoutePaths.termList &&
-          topEntry.params['level'] == widget.levelCode &&
-          topEntry.params['unit'] == widget.unitName) {
-        if (_lastTopPath != null && _lastTopPath != HomeRoutePaths.termList) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _viewModel.loadTerms();
-          });
-        }
-        _lastTopPath = HomeRoutePaths.termList;
-      } else {
-        _lastTopPath = topEntry.path;
-      }
-    }
-
     return ChangeNotifierProvider<TermListViewModel>.value(
       value: _viewModel,
       child: const _TermListView(),

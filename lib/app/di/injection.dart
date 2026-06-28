@@ -17,6 +17,8 @@ import '../../features/home/application/services/home_service_impl.dart';
 import '../../features/home/application/services/i_home_service.dart';
 import '../../features/learning/application/services/i_learn_service.dart';
 import '../../features/learning/application/services/learn_service_impl.dart';
+import '../../features/learning/data/repositories/learn_repository_impl.dart';
+import '../../features/learning/domain/repositories/i_learn_repository.dart';
 import '../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../shared/vocabulary/application/services/vocabulary_service_impl.dart';
 import '../../shared/vocabulary/data/datasources/i_vocabulary_remote_data_source.dart';
@@ -25,6 +27,7 @@ import '../../shared/vocabulary/data/repositories/vocabulary_repository_impl.dar
 import '../../shared/vocabulary/domain/repositories/i_vocabulary_repository.dart';
 import '../../shared/word_state/application/services/i_word_state_service.dart';
 import '../../shared/word_state/application/services/word_state_service_impl.dart';
+import '../../shared/word_state/application/services/word_state_store.dart';
 import '../../shared/word_state/data/datasources/i_word_state_local_data_source.dart';
 import '../../shared/word_state/data/datasources/word_state_local_data_source_impl.dart';
 import '../../shared/word_state/data/repositories/word_state_repository_impl.dart';
@@ -59,6 +62,9 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<IWordStateService>(
     () => WordStateServiceImpl(getIt<IWordStateRepository>()),
   );
+  getIt.registerLazySingleton<WordStateStore>(
+    () => WordStateStore(getIt<IWordStateRepository>()),
+  );
 
   getIt.registerLazySingleton<IHomeService>(
     () => HomeServiceImpl(
@@ -66,7 +72,18 @@ Future<void> setupDependencies() async {
       getIt<IWordStateService>(),
     ),
   );
-  getIt.registerLazySingleton<ILearnService>(LearnServiceImpl.new);
+  getIt.registerLazySingleton<ILearnRepository>(
+    () => LearnRepositoryImpl(
+      getIt<IVocabularyService>(),
+      getIt<WordStateStore>(),
+    ),
+  );
+  getIt.registerLazySingleton<ILearnService>(
+    () => LearnServiceImpl(
+      getIt<ILearnRepository>(),
+      getIt<WordStateStore>(),
+    ),
+  );
   getIt.registerLazySingleton<IExamService>(ExamServiceImpl.new);
   getIt.registerLazySingleton<ICoachService>(CoachServiceImpl.new);
   getIt.registerLazySingleton<IDashboardService>(DashboardServiceImpl.new);

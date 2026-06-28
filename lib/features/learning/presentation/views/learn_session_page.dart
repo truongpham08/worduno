@@ -7,7 +7,6 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/utils/tts_helper.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
-import '../../../../shared/word_state/domain/entities/user_word_state.dart';
 import '../viewmodels/learn_session_view_model.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -85,9 +84,11 @@ class _LearnSessionView extends StatelessWidget {
                     message: vm.errorMessage!,
                     onRetry: vm.loadSession,
                   )
-                : vm.isCompleted
-                    ? _buildCompletionScreen(context, vm)
-                    : _buildSessionScreen(context, vm),
+                : vm.isEmptySession
+                    ? _buildEmptyScreen(context)
+                    : vm.isCompleted
+                        ? _buildCompletionScreen(context, vm)
+                        : _buildSessionScreen(context, vm),
       ),
     );
   }
@@ -180,20 +181,68 @@ class _LearnSessionView extends StatelessWidget {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Empty screen (unit has no terms)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  Widget _buildEmptyScreen(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'No terms available to learn.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _ScaleButton(
+              onTap: () {
+                context.read<AppNavigationNotifier>().popHomeRoute();
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Text(
+                  'Back to List',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Session screen
   // ─────────────────────────────────────────────────────────────────────────────
 
   Widget _buildSessionScreen(BuildContext context, LearnSessionViewModel vm) {
-    if (vm.terms.isEmpty) {
+    final currentTerm = vm.currentTerm;
+    if (currentTerm == null) {
       return const Center(
         child: Text('No terms available to learn.'),
       );
     }
 
-    final currentTerm = vm.terms[vm.currentIndex];
-    final wordState = vm.getWordState(currentTerm.id);
-    final progress = vm.currentIndex / vm.terms.length;
-    final progressText = '${vm.currentIndex + 1}/${vm.terms.length}';
+    final isStarred = vm.currentStarred;
+    final progress = vm.progress;
+    final progressText = vm.progressLabel;
 
     return Column(
       children: [
@@ -260,7 +309,7 @@ class _LearnSessionView extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (vm.history.isNotEmpty) ...[
+                    if (vm.canUndo) ...[
                       const SizedBox(width: 8),
                       _ScaleButton(
                         onTap: vm.undo,
@@ -340,9 +389,9 @@ class _LearnSessionView extends StatelessWidget {
                         ? Transform(
                             alignment: Alignment.center,
                             transform: Matrix4.identity()..rotateY(math.pi), // rotate the back side content so it reads correctly
-                            child: _buildCardBack(currentTerm, wordState, vm),
+                            child: _buildCardBack(currentTerm, isStarred, vm),
                           )
-                        : _buildCardFront(currentTerm, wordState, vm),
+                        : _buildCardFront(currentTerm, isStarred, vm),
                   );
                 },
               ),
@@ -385,7 +434,7 @@ class _LearnSessionView extends StatelessWidget {
               // Still learning button
               Expanded(
                 child: _ScaleButton(
-                  onTap: vm.stillLearning,
+                  onTap: vm.markLearning,
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
@@ -418,7 +467,7 @@ class _LearnSessionView extends StatelessWidget {
               // I know this button
               Expanded(
                 child: _ScaleButton(
-                  onTap: vm.knowThis,
+                  onTap: vm.markKnow,
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
@@ -456,7 +505,7 @@ class _LearnSessionView extends StatelessWidget {
 
   Widget _buildCardFront(
     Term currentTerm,
-    UserWordState wordState,
+    bool isStarred,
     LearnSessionViewModel vm,
   ) {
     return Container(
@@ -480,13 +529,13 @@ class _LearnSessionView extends StatelessWidget {
             top: 20,
             right: 20,
             child: _ScaleButton(
-              onTap: () => vm.toggleStar(currentTerm.id),
+              onTap: vm.toggleStarCurrent,
               child: Icon(
-                wordState.isStarred
+                isStarred
                     ? Icons.star_rounded
                     : Icons.star_outline_rounded,
                 size: 26,
-                color: wordState.isStarred
+                color: isStarred
                     ? const Color(0xFFF59E0B)
                     : Colors.grey[400],
               ),
@@ -539,7 +588,7 @@ class _LearnSessionView extends StatelessWidget {
 
   Widget _buildCardBack(
     Term currentTerm,
-    UserWordState wordState,
+    bool isStarred,
     LearnSessionViewModel vm,
   ) {
     return Container(
@@ -567,13 +616,13 @@ class _LearnSessionView extends StatelessWidget {
             top: 20,
             right: 20,
             child: _ScaleButton(
-              onTap: () => vm.toggleStar(currentTerm.id),
+              onTap: vm.toggleStarCurrent,
               child: Icon(
-                wordState.isStarred
+                isStarred
                     ? Icons.star_rounded
                     : Icons.star_outline_rounded,
                 size: 26,
-                color: wordState.isStarred
+                color: isStarred
                     ? const Color(0xFFF59E0B)
                     : Colors.grey[400],
               ),

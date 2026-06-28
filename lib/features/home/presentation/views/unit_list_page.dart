@@ -29,7 +29,6 @@ class UnitListPage extends StatefulWidget {
 
 class _UnitListPageState extends State<UnitListPage> {
   late final UnitListViewModel _viewModel;
-  String? _lastTopPath;
 
   @override
   void initState() {
@@ -48,23 +47,6 @@ class _UnitListPageState extends State<UnitListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final nav = context.watch<AppNavigationNotifier>();
-    final stack = nav.configuration.homeStack;
-    if (stack.isNotEmpty) {
-      final topEntry = stack.last;
-      if (topEntry.path == HomeRoutePaths.unitList &&
-          topEntry.params['level'] == widget.levelCode) {
-        if (_lastTopPath != null && _lastTopPath != HomeRoutePaths.unitList) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _viewModel.loadUnits();
-          });
-        }
-        _lastTopPath = HomeRoutePaths.unitList;
-      } else {
-        _lastTopPath = topEntry.path;
-      }
-    }
-
     return ChangeNotifierProvider<UnitListViewModel>.value(
       value: _viewModel,
       child: const _UnitListView(),

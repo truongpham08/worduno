@@ -18,7 +18,6 @@ class LevelListPage extends StatefulWidget {
 class _LevelListPageState extends State<LevelListPage> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
-  String? _lastTopPath;
 
   @override
   void initState() {
@@ -40,21 +39,6 @@ class _LevelListPageState extends State<LevelListPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<LevelListViewModel>();
-    final nav = context.watch<AppNavigationNotifier>();
-    final stack = nav.configuration.homeStack;
-    if (stack.isNotEmpty) {
-      final topEntry = stack.last;
-      if (topEntry.path == HomeRoutePaths.levelList) {
-        if (_lastTopPath != null && _lastTopPath != HomeRoutePaths.levelList) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.read<LevelListViewModel>().loadLevels();
-          });
-        }
-        _lastTopPath = HomeRoutePaths.levelList;
-      } else {
-        _lastTopPath = topEntry.path;
-      }
-    }
 
     final filtered = viewModel.levels
         .where((l) => l.code.toLowerCase().contains(_searchQuery))

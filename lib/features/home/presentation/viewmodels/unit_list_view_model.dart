@@ -3,27 +3,35 @@ import 'package:flutter/foundation.dart';
 import '../../../../app/di/injection.dart';
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/vocabulary/domain/entities/unit.dart';
-import '../../../../shared/word_state/application/services/i_word_state_service.dart';
-import '../../../../shared/word_state/domain/entities/word_status.dart';
+import '../../../../shared/word_state/application/services/word_state_store.dart';
 
 class UnitListViewModel extends ChangeNotifier {
   UnitListViewModel({
     required this.levelCode,
     IVocabularyService? vocabularyService,
-    IWordStateService? wordStateService,
+    WordStateStore? wordStateStore,
   })  : _vocabularyService = vocabularyService ?? getIt<IVocabularyService>(),
-        _wordStateService = wordStateService ?? getIt<IWordStateService>();
+        _store = wordStateStore ?? getIt<WordStateStore>() {
+    _store.addListener(_onStoreChanged);
+  }
 
   final String levelCode;
   final IVocabularyService _vocabularyService;
-  final IWordStateService _wordStateService;
+  final WordStateStore _store;
 
   bool _isDisposed = false;
 
   @override
   void dispose() {
     _isDisposed = true;
+    _store.removeListener(_onStoreChanged);
     super.dispose();
+  }
+
+  void _onStoreChanged() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
   }
 
   @override
@@ -35,7 +43,22 @@ class UnitListViewModel extends ChangeNotifier {
 
   bool isLoading = false;
   String? errorMessage;
-  List<Unit> units = const [];
+
+  /// Static unit metadata (id, name, total terms) loaded once from the API.
+  /// Known counts are read reactively from the [WordStateStore].
+  List<Unit> _baseUnits = const [];
+
+  /// Units with up-to-date known counts pulled from the store.
+  List<Unit> get units => _baseUnits
+      .map(
+        (unit) => Unit(
+          id: unit.id,
+          name: unit.name,
+          totalTerms: unit.totalTerms,
+          knownTerms: _store.knownCount(unit.id),
+        ),
+      )
+      .toList(growable: false);
 
   Future<void> loadUnits() async {
     isLoading = true;
@@ -45,32 +68,25 @@ class UnitListViewModel extends ChangeNotifier {
     try {
       final baseUnits = await _vocabularyService.getUnits(levelCode);
 
-      final futureUnits = baseUnits.asMap().entries.map((entry) async {
-        final index = entry.key;
-        final unit = entry.value;
-        final unitId = '$levelCode-$index';
-
+      final futureUnits = baseUnits.map((unit) async {
         try {
           final terms = await _vocabularyService.getTerms(
             levelCode: levelCode,
             unitName: unit.name,
           );
-          final states = await _wordStateService.getByUnit(unitId);
-          final knownCount =
-              states.where((s) => s.status == WordStatus.know).length;
-
+          await _store.ensureLoaded(unit.id);
           return Unit(
             id: unit.id,
             name: unit.name,
             totalTerms: terms.length,
-            knownTerms: knownCount,
+            knownTerms: 0,
           );
         } catch (_) {
           return unit;
         }
       });
 
-      units = await Future.wait(futureUnits);
+      _baseUnits = await Future.wait(futureUnits);
     } catch (error) {
       errorMessage = error.toString();
     } finally {
