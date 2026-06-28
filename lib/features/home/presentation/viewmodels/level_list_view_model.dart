@@ -16,6 +16,21 @@ class LevelListViewModel extends ChangeNotifier {
   final IVocabularyService _vocabularyService;
   final IWordStateService _wordStateService;
 
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
   bool isLoading = false;
   String? errorMessage;
   List<Level> levels = const [];
