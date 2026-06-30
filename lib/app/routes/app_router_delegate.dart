@@ -114,10 +114,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       HomeRoutePaths.termList => TermListPage(
           levelCode: entry.params['level'] ?? '',
           unitName: entry.params['unit'] ?? '',
+          unitId: entry.params['unitId'],
         ),
       HomeRoutePaths.learn => LearnSessionPage(
           levelCode: entry.params['level'] ?? '',
           unitName: entry.params['unit'] ?? '',
+          unitId: entry.params['unitId'],
+          initialTermId: entry.params['termId'],
         ),
       HomeRoutePaths.examConfig => ExamConfigPage(
           levelCode: entry.params['level'],

@@ -286,6 +286,7 @@ class _UnitListViewState extends State<_UnitListView> {
                                 params: {
                                   'level': vm.levelCode,
                                   'unit': item.unit.name,
+                                  'unitId': item.unit.id,
                                 },
                               );
                         },

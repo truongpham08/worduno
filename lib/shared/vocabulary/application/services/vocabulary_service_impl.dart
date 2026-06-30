@@ -9,17 +9,37 @@ class VocabularyServiceImpl implements IVocabularyService {
 
   final IVocabularyRepository _repository;
 
-  @override
-  Future<List<Level>> getLevels() => _repository.getLevels();
+  List<Level>? _cachedLevels;
+  final Map<String, List<Unit>> _cachedUnits = {};
+  final Map<String, List<Term>> _cachedTerms = {};
 
   @override
-  Future<List<Unit>> getUnits(String levelCode) =>
-      _repository.getUnits(levelCode);
+  Future<List<Level>> getLevels() async {
+    if (_cachedLevels != null) return _cachedLevels!;
+    _cachedLevels = await _repository.getLevels();
+    return _cachedLevels!;
+  }
+
+  @override
+  Future<List<Unit>> getUnits(String levelCode) async {
+    if (_cachedUnits.containsKey(levelCode)) return _cachedUnits[levelCode]!;
+    final units = await _repository.getUnits(levelCode);
+    _cachedUnits[levelCode] = units;
+    return units;
+  }
 
   @override
   Future<List<Term>> getTerms({
     required String levelCode,
     required String unitName,
-  }) =>
-      _repository.getTerms(levelCode: levelCode, unitName: unitName);
+  }) async {
+    final key = '$levelCode|$unitName';
+    if (_cachedTerms.containsKey(key)) return _cachedTerms[key]!;
+    final terms = await _repository.getTerms(
+      levelCode: levelCode,
+      unitName: unitName,
+    );
+    _cachedTerms[key] = terms;
+    return terms;
+  }
 }

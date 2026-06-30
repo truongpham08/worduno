@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class AppDatabase {
-  AppDatabase();
+  /// [overridePath] lets tests point the database at a temporary file so
+  /// persistence can be verified across separate connections.
+  AppDatabase({String? overridePath}) : _overridePath = overridePath;
+
+  final String? _overridePath;
 
   Database? _database;
 
@@ -16,9 +22,17 @@ class AppDatabase {
     return _database!;
   }
 
+  Future<void> close() async {
+    await _database?.close();
+    _database = null;
+  }
+
   Future<Database> _open() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'worduno.db');
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+    final path = _overridePath ?? join(await getDatabasesPath(), 'worduno.db');
 
     return openDatabase(
       path,

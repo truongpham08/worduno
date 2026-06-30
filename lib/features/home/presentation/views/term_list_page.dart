@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
+import '../../../../app/routes/route_paths.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/utils/tts_helper.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
+import '../../../../shared/word_state/domain/entities/user_word_state.dart';
+import '../../../../shared/word_state/domain/entities/word_status.dart';
 import '../viewmodels/term_list_view_model.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -24,10 +28,12 @@ class TermListPage extends StatefulWidget {
     super.key,
     required this.levelCode,
     required this.unitName,
+    this.unitId,
   });
 
   final String levelCode;
   final String unitName;
+  final String? unitId;
 
   @override
   State<TermListPage> createState() => _TermListPageState();
@@ -42,6 +48,7 @@ class _TermListPageState extends State<TermListPage> {
     _viewModel = TermListViewModel(
       levelCode: widget.levelCode,
       unitName: widget.unitName,
+      unitId: widget.unitId,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _viewModel.loadTerms();
@@ -77,10 +84,8 @@ class _TermListView extends StatefulWidget {
 class _TermListViewState extends State<_TermListView> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
-  _ViewMode _viewMode = _ViewMode.list;
+  _ViewMode _viewMode = _ViewMode.flashcard;
   _FilterMode _filter = _FilterMode.all;
-  int _flashcardIndex = 0;
-  bool _flashcardFlipped = false;
 
   @override
   void initState() {
@@ -96,29 +101,21 @@ class _TermListViewState extends State<_TermListView> {
     super.dispose();
   }
 
-  List<Term> _filtered(List<Term> terms) {
-    return terms
+  List<Term> _applyFilter(List<Term> terms, TermListViewModel vm) {
+    final searched = terms
         .where((t) =>
             t.text.toLowerCase().contains(_searchQuery) ||
             t.definition.toLowerCase().contains(_searchQuery))
         .toList();
-  }
 
-  // Derive a deterministic "status" per term based on index for display
-  _FilterMode _termStatus(int index) {
-    if (index % 3 == 0) return _FilterMode.learned;
-    if (index % 3 == 1) return _FilterMode.learning;
-    return _FilterMode.newWord;
-  }
-
-  bool _isStarred(int index) => index % 4 == 0;
-
-  List<Term> _applyFilter(List<Term> terms) {
-    if (_filter == _FilterMode.all) return terms;
-    return terms.where((t) {
-      final idx = terms.indexOf(t);
-      if (_filter == _FilterMode.starred) return _isStarred(idx);
-      return _termStatus(idx) == _filter;
+    if (_filter == _FilterMode.all) return searched;
+    return searched.where((t) {
+      final state = vm.getWordState(t.id);
+      if (_filter == _FilterMode.starred) return state.isStarred;
+      if (_filter == _FilterMode.learned) return state.status == WordStatus.know;
+      if (_filter == _FilterMode.learning) return state.status == WordStatus.learning;
+      if (_filter == _FilterMode.newWord) return state.status == WordStatus.newWord;
+      return true;
     }).toList();
   }
 
@@ -159,8 +156,7 @@ class _TermListViewState extends State<_TermListView> {
   }
 
   Widget _buildContent(TermListViewModel vm) {
-    final searched = _filtered(vm.terms);
-    final displayTerms = _applyFilter(searched);
+    final displayTerms = _applyFilter(vm.terms, vm);
 
     return Column(
       children: [
@@ -187,7 +183,7 @@ class _TermListViewState extends State<_TermListView> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        '${vm.terms.length} of ${vm.terms.length} words',
+                        '${vm.knownCount} of ${vm.terms.length} words',
                         style: const TextStyle(
                             fontSize: 13, color: Color(0xFF9CA3AF)),
                       ),
@@ -217,21 +213,48 @@ class _TermListViewState extends State<_TermListView> {
                         icon: Icons.menu_book_outlined,
                         label: 'Learn',
                         color: const Color(0xFF3B82F6),
-                        onTap: () {},
+                        onTap: () {
+                          context.read<AppNavigationNotifier>().openHomeRoute(
+                            HomeRoutePaths.learn,
+                            params: {
+                              'level': vm.levelCode,
+                              'unit': vm.unitName,
+                              'unitId': vm.unitId,
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(width: 10),
                       _ActionBtn(
                         icon: Icons.quiz_outlined,
                         label: 'Exam',
                         color: const Color(0xFFEF4444),
-                        onTap: () {},
+                        onTap: () {
+                          context.read<AppNavigationNotifier>().openHomeRoute(
+                            HomeRoutePaths.examConfig,
+                            params: {
+                              'level': vm.levelCode,
+                              'unit': vm.unitName,
+                              'unitId': vm.unitId,
+                            },
+                          );
+                        },
                       ),
                       const SizedBox(width: 10),
                       _ActionBtn(
                         icon: Icons.smart_toy_outlined,
                         label: 'Coach',
                         color: const Color(0xFF8B5CF6),
-                        onTap: () {},
+                        onTap: () {
+                          context.read<AppNavigationNotifier>().openHomeRoute(
+                            HomeRoutePaths.coachConfig,
+                            params: {
+                              'level': vm.levelCode,
+                              'unit': vm.unitName,
+                              'unitId': vm.unitId,
+                            },
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -247,62 +270,59 @@ class _TermListViewState extends State<_TermListView> {
                     onChanged: (m) {
                       setState(() {
                         _viewMode = m;
-                        _flashcardIndex = 0;
-                        _flashcardFlipped = false;
                       });
                     },
                   ),
                 ),
               ),
 
-              // ── Filter chips (only in List mode) ─────────────────
-              if (_viewMode == _ViewMode.list)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _FilterChip2(
-                            label: 'All',
-                            selected: _filter == _FilterMode.all,
-                            onTap: () =>
-                                setState(() => _filter = _FilterMode.all),
-                          ),
-                          const SizedBox(width: 8),
-                          _FilterChip2(
-                            label: 'Learned',
-                            selected: _filter == _FilterMode.learned,
-                            onTap: () => setState(
-                                () => _filter = _FilterMode.learned),
-                          ),
-                          const SizedBox(width: 8),
-                          _FilterChip2(
-                            label: 'Learning',
-                            selected: _filter == _FilterMode.learning,
-                            onTap: () => setState(
-                                () => _filter = _FilterMode.learning),
-                          ),
-                          const SizedBox(width: 8),
-                          _FilterChip2(
-                            label: 'New',
-                            selected: _filter == _FilterMode.newWord,
-                            onTap: () => setState(
-                                () => _filter = _FilterMode.newWord),
-                          ),
-                          const SizedBox(width: 8),
-                          _FilterChip2(
-                            label: 'Starred',
-                            selected: _filter == _FilterMode.starred,
-                            onTap: () => setState(
-                                () => _filter = _FilterMode.starred),
-                          ),
-                        ],
-                      ),
+              // ── Filter chips ─────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _FilterChip2(
+                          label: 'All',
+                          selected: _filter == _FilterMode.all,
+                          onTap: () =>
+                              setState(() => _filter = _FilterMode.all),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterChip2(
+                          label: 'Learned',
+                          selected: _filter == _FilterMode.learned,
+                          onTap: () => setState(
+                              () => _filter = _FilterMode.learned),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterChip2(
+                          label: 'Learning',
+                          selected: _filter == _FilterMode.learning,
+                          onTap: () => setState(
+                              () => _filter = _FilterMode.learning),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterChip2(
+                          label: 'New',
+                          selected: _filter == _FilterMode.newWord,
+                          onTap: () => setState(
+                              () => _filter = _FilterMode.newWord),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterChip2(
+                          label: 'Starred',
+                          selected: _filter == _FilterMode.starred,
+                          onTap: () => setState(
+                              () => _filter = _FilterMode.starred),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+              ),
 
               // ── Content ─────────────────────────────────────────
               if (_viewMode == _ViewMode.list)
@@ -320,15 +340,15 @@ class _TermListViewState extends State<_TermListView> {
                           delegate: SliverChildBuilderDelegate(
                             (context, i) {
                               final term = displayTerms[i];
-                              final globalIndex =
-                                  vm.terms.indexOf(term);
                               return Padding(
                                 padding:
                                     const EdgeInsets.only(bottom: 12),
                                 child: _TermCard(
                                   term: term,
-                                  status: _termStatus(globalIndex),
-                                  starred: _isStarred(globalIndex),
+                                  state: vm.getWordState(term.id),
+                                  onStarTapped: () => vm.toggleStar(term.id),
+                                  onStatusChanged: (status) =>
+                                      vm.updateStatus(term.id, status),
                                 ),
                               );
                             },
@@ -337,35 +357,33 @@ class _TermListViewState extends State<_TermListView> {
                         ),
                       )
               else
-                // Flashcard mode
-                SliverFillRemaining(
-                  child: displayTerms.isEmpty
-                      ? const Center(
+                // Flashcard list view
+                displayTerms.isEmpty
+                    ? const SliverFillRemaining(
+                        child: Center(
                           child: Text('No terms found.',
                               style: TextStyle(color: Colors.grey)),
-                        )
-                      : _FlashcardView(
-                          terms: displayTerms,
-                          currentIndex: _flashcardIndex
-                              .clamp(0, displayTerms.length - 1),
-                          flipped: _flashcardFlipped,
-                          onFlip: () => setState(
-                              () => _flashcardFlipped = !_flashcardFlipped),
-                          onPrev: _flashcardIndex > 0
-                              ? () => setState(() {
-                                    _flashcardIndex--;
-                                    _flashcardFlipped = false;
-                                  })
-                              : null,
-                          onNext: _flashcardIndex <
-                                  displayTerms.length - 1
-                              ? () => setState(() {
-                                    _flashcardIndex++;
-                                    _flashcardFlipped = false;
-                                  })
-                              : null,
                         ),
-                ),
+                      )
+                    : SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 32),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, i) {
+                              final term = displayTerms[i];
+                              return _FlashcardListItem(
+                                key: ValueKey('fc-${term.id}'),
+                                term: term,
+                                state: vm.getWordState(term.id),
+                                onStarTapped: () => vm.toggleStar(term.id),
+                                onStatusChanged: (status) =>
+                                    vm.updateStatus(term.id, status),
+                              );
+                            },
+                            childCount: displayTerms.length,
+                          ),
+                        ),
+                      ),
             ],
           ),
         ),
@@ -623,32 +641,34 @@ class _FilterChip2 extends StatelessWidget {
 class _TermCard extends StatelessWidget {
   const _TermCard({
     required this.term,
-    required this.status,
-    required this.starred,
+    required this.state,
+    required this.onStarTapped,
+    required this.onStatusChanged,
   });
 
   final Term term;
-  final _FilterMode status;
-  final bool starred;
+  final UserWordState state;
+  final VoidCallback onStarTapped;
+  final ValueChanged<WordStatus> onStatusChanged;
 
   Color get _statusColor {
-    return switch (status) {
-      _FilterMode.learned => const Color(0xFF10B981),
-      _FilterMode.learning => const Color(0xFFF59E0B),
-      _ => const Color(0xFF6B7280),
+    return switch (state.status) {
+      WordStatus.know => const Color(0xFF10B981),
+      WordStatus.learning => const Color(0xFFF59E0B),
+      WordStatus.newWord => const Color(0xFF3B82F6),
     };
   }
 
   String get _statusLabel {
-    return switch (status) {
-      _FilterMode.learned => 'learned',
-      _FilterMode.learning => 'learning',
-      _ => 'new',
+    return switch (state.status) {
+      WordStatus.know => 'learned',
+      WordStatus.learning => 'learning',
+      WordStatus.newWord => 'new',
     };
   }
 
-  bool get _isLearned => status == _FilterMode.learned;
-  bool get _isLearning => status == _FilterMode.learning;
+  bool get _isLearned => state.status == WordStatus.know;
+  bool get _isLearning => state.status == WordStatus.learning;
 
   @override
   Widget build(BuildContext context) {
@@ -676,51 +696,75 @@ class _TermCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    Text(
-                      term.text,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 9, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: sc.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        sl,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: sc,
+                child: GestureDetector(
+                  onTap: () {
+                    final vm = context.read<TermListViewModel>();
+                    context.read<AppNavigationNotifier>().openHomeRoute(
+                          HomeRoutePaths.learn,
+                          params: {
+                            'level': vm.levelCode,
+                            'unit': vm.unitName,
+                            'unitId': vm.unitId,
+                            'termId': term.id,
+                          },
+                        );
+                  },
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      Text(
+                        term.text,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
                         ),
                       ),
-                    ),
-                  ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: sc.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          sl,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: sc,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.volume_up_outlined,
-                      size: 19, color: Colors.grey[400]),
-                  const SizedBox(width: 6),
-                  Icon(
-                    starred ? Icons.star_rounded : Icons.star_outline_rounded,
-                    size: 20,
-                    color: starred
-                        ? const Color(0xFFF59E0B)
-                        : Colors.grey[400],
+                  IconButton(
+                    icon: Icon(Icons.volume_up_outlined,
+                        size: 19, color: Colors.grey[400]),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () => TtsHelper.speak(term.text),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: onStarTapped,
+                    child: Icon(
+                      state.isStarred
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      size: 20,
+                      color: state.isStarred
+                          ? const Color(0xFFF59E0B)
+                          : Colors.grey[400],
+                    ),
                   ),
                 ],
               ),
@@ -728,12 +772,26 @@ class _TermCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           // ── Definition ─────────────────────────────────────────
-          Text(
-            term.definition,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF6B7280),
-              height: 1.45,
+          GestureDetector(
+            onTap: () {
+              final vm = context.read<TermListViewModel>();
+              context.read<AppNavigationNotifier>().openHomeRoute(
+                    HomeRoutePaths.learn,
+                    params: {
+                      'level': vm.levelCode,
+                      'unit': vm.unitName,
+                      'unitId': vm.unitId,
+                      'termId': term.id,
+                    },
+                  );
+            },
+            child: Text(
+              term.definition,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6B7280),
+                height: 1.45,
+              ),
             ),
           ),
           const SizedBox(height: 13),
@@ -741,20 +799,28 @@ class _TermCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _TermBtn(
-                  icon: Icons.check_rounded,
-                  label: 'Know',
-                  filled: _isLearned,
-                  fillColor: const Color(0xFF10B981),
+                child: GestureDetector(
+                  onTap: () => onStatusChanged(
+                      _isLearned ? WordStatus.newWord : WordStatus.know),
+                  child: _TermBtn(
+                    icon: Icons.check_rounded,
+                    label: 'Know',
+                    filled: _isLearned,
+                    fillColor: const Color(0xFF10B981),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _TermBtn(
-                  icon: Icons.refresh_rounded,
-                  label: 'Learning',
-                  filled: _isLearning,
-                  fillColor: const Color(0xFFF59E0B),
+                child: GestureDetector(
+                  onTap: () => onStatusChanged(
+                      _isLearning ? WordStatus.newWord : WordStatus.learning),
+                  child: _TermBtn(
+                    icon: Icons.refresh_rounded,
+                    label: 'Learning',
+                    filled: _isLearning,
+                    fillColor: const Color(0xFFF59E0B),
+                  ),
                 ),
               ),
             ],
@@ -808,177 +874,226 @@ class _TermBtn extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Flashcard view
+// Flashcard list item
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _FlashcardView extends StatelessWidget {
-  const _FlashcardView({
-    required this.terms,
-    required this.currentIndex,
-    required this.flipped,
-    required this.onFlip,
-    required this.onPrev,
-    required this.onNext,
+class _FlashcardListItem extends StatefulWidget {
+  const _FlashcardListItem({
+    super.key,
+    required this.term,
+    required this.state,
+    required this.onStarTapped,
+    required this.onStatusChanged,
   });
 
-  final List<Term> terms;
-  final int currentIndex;
-  final bool flipped;
-  final VoidCallback onFlip;
-  final VoidCallback? onPrev;
-  final VoidCallback? onNext;
+  final Term term;
+  final UserWordState state;
+  final VoidCallback onStarTapped;
+  final ValueChanged<WordStatus> onStatusChanged;
+
+  @override
+  State<_FlashcardListItem> createState() => _FlashcardListItemState();
+}
+
+class _FlashcardListItemState extends State<_FlashcardListItem> {
+  Color get _statusColor {
+    return switch (widget.state.status) {
+      WordStatus.know => const Color(0xFF10B981),
+      WordStatus.learning => const Color(0xFFF59E0B),
+      WordStatus.newWord => const Color(0xFF3B82F6),
+    };
+  }
+
+  String get _statusLabel {
+    return switch (widget.state.status) {
+      WordStatus.know => 'learned',
+      WordStatus.learning => 'learning',
+      WordStatus.newWord => 'new',
+    };
+  }
+
+  bool get _isLearned => widget.state.status == WordStatus.know;
+  bool get _isLearning => widget.state.status == WordStatus.learning;
 
   @override
   Widget build(BuildContext context) {
-    final term = terms[currentIndex];
+    final sc = _statusColor;
+    final sl = _statusLabel;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Progress indicator
-          Text(
-            '${currentIndex + 1} / ${terms.length}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF9CA3AF),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Thin progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: (currentIndex + 1) / terms.length,
-              minHeight: 5,
-              backgroundColor: const Color(0xFFE5E7EB),
-              valueColor: const AlwaysStoppedAnimation<Color>(
-                  Color(0xFF3B82F6)),
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Flashcard
-          Expanded(
-            child: GestureDetector(
-              onTap: onFlip,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: Container(
-                  key: ValueKey('$currentIndex-$flipped'),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: flipped
-                        ? const Color(0xFFF0F9FF)
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: flipped
-                          ? const Color(0xFFBAE6FD)
-                          : const Color(0xFFF3F4F6),
-                    ),
+          // ── The Card ───────────────────────────────────────
+          GestureDetector(
+            onTap: () {
+              final vm = context.read<TermListViewModel>();
+              context.read<AppNavigationNotifier>().openHomeRoute(
+                    HomeRoutePaths.learn,
+                    params: {
+                      'level': vm.levelCode,
+                      'unit': vm.unitName,
+                      'unitId': vm.unitId,
+                      'termId': widget.term.id,
+                    },
+                  );
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ],
+                border: Border.all(
+                  color: Colors.transparent,
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                children: [
+                  // Card Header: Status badge on left, Star icon on right
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        flipped ? 'Definition' : 'Term',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF9CA3AF),
-                          letterSpacing: 1,
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: sc.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 32),
                         child: Text(
-                          flipped ? term.definition : term.text,
-                          textAlign: TextAlign.center,
+                          sl,
                           style: TextStyle(
-                            fontSize: flipped ? 16 : 26,
-                            fontWeight: flipped
-                                ? FontWeight.w500
-                                : FontWeight.w800,
-                            color: const Color(0xFF111827),
-                            height: 1.4,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: sc,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Tap to ${flipped ? 'hide' : 'reveal'} definition',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFBCC0CC),
+                      GestureDetector(
+                        onTap: widget.onStarTapped,
+                        child: Icon(
+                          widget.state.isStarred
+                              ? Icons.star_rounded
+                              : Icons.star_outline_rounded,
+                          size: 22,
+                          color: widget.state.isStarred
+                              ? const Color(0xFFF59E0B)
+                              : Colors.grey[400],
                         ),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  // Word / Definition Text
+                  const Text(
+                    'Word',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF9CA3AF),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.term.text,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF111827),
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Tap card to learn',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFFBCC0CC),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          // Navigation buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _NavBtn(
-                icon: Icons.arrow_back_ios_new_rounded,
-                onTap: onPrev,
-                enabled: onPrev != null,
-              ),
-              const SizedBox(width: 20),
-              _NavBtn(
-                icon: Icons.arrow_forward_ios_rounded,
-                onTap: onNext,
-                enabled: onNext != null,
-              ),
-            ],
+          const SizedBox(height: 8),
+          // ── The button bar below the card ───────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Audio pronunciation circular button
+                GestureDetector(
+                  onTap: () => TtsHelper.speak(widget.term.text),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEFF6FF),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.volume_up_outlined,
+                      size: 18,
+                      color: Color(0xFF3B82F6),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Know button
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => widget.onStatusChanged(
+                        _isLearned ? WordStatus.newWord : WordStatus.know),
+                    child: _TermBtn(
+                      icon: Icons.check_rounded,
+                      label: 'Know',
+                      filled: _isLearned,
+                      fillColor: const Color(0xFF10B981),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                // Learning button
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => widget.onStatusChanged(
+                        _isLearning ? WordStatus.newWord : WordStatus.learning),
+                    child: _TermBtn(
+                      icon: Icons.refresh_rounded,
+                      label: 'Learning',
+                      filled: _isLearning,
+                      fillColor: const Color(0xFFF59E0B),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _NavBtn extends StatelessWidget {
-  const _NavBtn({
-    required this.icon,
-    required this.onTap,
-    required this.enabled,
-  });
-
-  final IconData icon;
-  final VoidCallback? onTap;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          color: enabled ? const Color(0xFF3B82F6) : const Color(0xFFE5E7EB),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          size: 18,
-          color: enabled ? Colors.white : const Color(0xFFD1D5DB),
-        ),
       ),
     );
   }

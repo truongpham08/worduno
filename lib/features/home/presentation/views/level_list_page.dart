@@ -39,6 +39,7 @@ class _LevelListPageState extends State<LevelListPage> {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<LevelListViewModel>();
+
     final filtered = viewModel.levels
         .where((l) => l.code.toLowerCase().contains(_searchQuery))
         .toList();
