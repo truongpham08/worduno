@@ -19,6 +19,14 @@ class HomeRoutePaths {
   static const coachSession = '/coach/session';
 }
 
+class CoachRoutePaths {
+  CoachRoutePaths._();
+
+  static const list = '/';
+  static const word = '/word';
+  static const feedback = '/feedback';
+}
+
 class HomeStackEntry {
   const HomeStackEntry(this.path, this.params);
 
@@ -36,41 +44,50 @@ class HomeStackEntry {
   }
 }
 
+class CoachStackEntry {
+  const CoachStackEntry(this.path, this.params);
+
+  final String path;
+  final Map<String, String> params;
+}
+
 class AppRoutePath {
   const AppRoutePath({
     required this.tab,
     required this.homeStack,
+    required this.coachStack,
     this.examDetailId,
-    this.coachDetailId,
   });
 
   factory AppRoutePath.initial() {
     return AppRoutePath(
       tab: AppTab.home,
       homeStack: [HomeStackEntry(HomeRoutePaths.levelList, const {})],
+      coachStack: [CoachStackEntry(CoachRoutePaths.list, const {})],
     );
   }
 
   final AppTab tab;
   final List<HomeStackEntry> homeStack;
+  final List<CoachStackEntry> coachStack;
   final String? examDetailId;
-  final String? coachDetailId;
 
   AppRoutePath copyWith({
     AppTab? tab,
     List<HomeStackEntry>? homeStack,
+    List<CoachStackEntry>? coachStack,
     String? examDetailId,
-    String? coachDetailId,
     bool clearExamDetail = false,
-    bool clearCoachDetail = false,
+    bool clearCoachStack = false,
   }) {
     return AppRoutePath(
       tab: tab ?? this.tab,
       homeStack: homeStack ?? this.homeStack,
+      coachStack: clearCoachStack
+          ? [CoachStackEntry(CoachRoutePaths.list, const {})]
+          : coachStack ?? this.coachStack,
       examDetailId:
           clearExamDetail ? null : examDetailId ?? this.examDetailId,
-      coachDetailId:
-          clearCoachDetail ? null : coachDetailId ?? this.coachDetailId,
     );
   }
 }

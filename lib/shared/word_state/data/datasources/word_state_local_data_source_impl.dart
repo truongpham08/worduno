@@ -51,6 +51,7 @@ class WordStateLocalDataSourceImpl implements IWordStateLocalDataSource {
         'term_id': state.termId,
         'is_starred': state.isStarred ? 1 : 0,
         'status': state.status.storageValue,
+        'explanation': state.explanation,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -62,6 +63,7 @@ class WordStateLocalDataSourceImpl implements IWordStateLocalDataSource {
       termId: row['term_id']! as String,
       isStarred: (row['is_starred'] as int? ?? 0) == 1,
       status: WordStatus.fromStorage(row['status']! as String),
+      explanation: row['explanation'] as String?,
     );
   }
 }

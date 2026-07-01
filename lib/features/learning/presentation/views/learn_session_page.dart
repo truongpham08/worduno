@@ -2,9 +2,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../core/utils/tts_helper.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
 import '../viewmodels/learn_session_view_model.dart';
@@ -146,7 +146,7 @@ class _LearnSessionView extends StatelessWidget {
             const SizedBox(height: 32),
             _ScaleButton(
               onTap: () {
-                context.read<AppNavigationNotifier>().popHomeRoute();
+                AppBackButton.handleDefaultBack(context);
               },
               child: Container(
                 width: double.infinity,
@@ -203,7 +203,7 @@ class _LearnSessionView extends StatelessWidget {
             const SizedBox(height: 20),
             _ScaleButton(
               onTap: () {
-                context.read<AppNavigationNotifier>().popHomeRoute();
+                AppBackButton.handleDefaultBack(context);
               },
               child: Container(
                 padding:
@@ -253,7 +253,7 @@ class _LearnSessionView extends StatelessWidget {
             children: [
               _ScaleButton(
                 onTap: () {
-                  context.read<AppNavigationNotifier>().popHomeRoute();
+                  AppBackButton.handleDefaultBack(context);
                 },
                 child: const Padding(
                   padding: EdgeInsets.all(12.0),

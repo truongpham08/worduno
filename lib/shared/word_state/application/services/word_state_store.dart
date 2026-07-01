@@ -83,6 +83,42 @@ class WordStateStore extends ChangeNotifier {
     }
   }
 
+  Future<void> saveExplanation({
+    required String unitId,
+    required String termId,
+    required String explanationJson,
+  }) async {
+    final previous = stateFor(unitId: unitId, termId: termId);
+    final next = previous.copyWith(explanation: explanationJson);
+    _put(next);
+    notifyListeners();
+
+    try {
+      await _repository.save(next);
+    } catch (_) {
+      _put(previous);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Ensures a row exists in SQLite for the FK used by coach feedback.
+  Future<void> ensurePersisted({
+    required String unitId,
+    required String termId,
+  }) async {
+    await ensureLoaded(unitId);
+    final existing = await _repository.getByTerm(
+      unitId: unitId,
+      termId: termId,
+    );
+    if (existing != null) {
+      return;
+    }
+
+    await _repository.save(stateFor(unitId: unitId, termId: termId));
+  }
+
   Future<void> toggleStar({
     required String unitId,
     required String termId,

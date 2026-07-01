@@ -5,6 +5,7 @@ import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../shared/vocabulary/domain/entities/level.dart';
 import '../viewmodels/level_list_view_model.dart';
 
@@ -46,20 +47,7 @@ class _LevelListPageState extends State<LevelListPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F2FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Lexia',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
+      appBar: const LexiaAppBar(),
       body: _buildBody(context, viewModel, filtered),
     );
   }

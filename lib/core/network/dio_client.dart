@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../constants/api_constants.dart';
-import '../errors/app_exception.dart';
 
 /// On Flutter Web, direct cross-origin requests are blocked by the browser
 /// (CORS policy). We transparently rewrite the base URL to go through
@@ -37,20 +36,6 @@ class DioClient {
         ),
       );
     }
-
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onError: (error, handler) {
-          final message = error.message ?? 'Network request failed';
-          handler.reject(
-            DioException(
-              requestOptions: error.requestOptions,
-              error: AppException(message),
-            ),
-          );
-        },
-      ),
-    );
 
     return dio;
   }
