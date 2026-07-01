@@ -17,10 +17,16 @@ import '../../features/dashboard/data/datasources/dashboard_local_data_source_im
 import '../../features/dashboard/data/datasources/i_dashboard_local_data_source.dart';
 import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import '../../features/dashboard/domain/repositories/i_dashboard_repository.dart';
+import '../../features/exam/application/services/exam_grader.dart';
+import '../../features/exam/application/services/exam_question_generator.dart';
 import '../../features/exam/application/services/exam_service_impl.dart';
 import '../../features/exam/application/services/i_exam_service.dart';
 import '../../features/exam/data/datasources/exam_ai_data_source_impl.dart';
+import '../../features/exam/data/datasources/exam_local_data_source_impl.dart';
 import '../../features/exam/data/datasources/i_exam_ai_data_source.dart';
+import '../../features/exam/data/datasources/i_exam_local_data_source.dart';
+import '../../features/exam/data/repositories/exam_repository_impl.dart';
+import '../../features/exam/domain/repositories/i_exam_repository.dart';
 import '../../features/home/application/services/home_service_impl.dart';
 import '../../features/home/application/services/i_home_service.dart';
 import '../../features/learning/application/services/i_learn_service.dart';
@@ -89,7 +95,30 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<ILearnService>(
     () => LearnServiceImpl(getIt<ILearnRepository>(), getIt<WordStateStore>()),
   );
-  getIt.registerLazySingleton<IExamService>(ExamServiceImpl.new);
+  getIt.registerLazySingleton<IExamLocalDataSource>(
+    () => ExamLocalDataSourceImpl(getIt<AppDatabase>()),
+  );
+  getIt.registerLazySingleton<IExamRepository>(
+    () => ExamRepositoryImpl(getIt<IExamLocalDataSource>()),
+  );
+  getIt.registerLazySingleton<IExamAiDataSource>(
+    () => ExamAiDataSourceImpl(getIt<Dio>()),
+  );
+  getIt.registerLazySingleton<ExamQuestionGenerator>(
+    () => ExamQuestionGenerator(getIt<IExamAiDataSource>()),
+  );
+  getIt.registerLazySingleton<ExamGrader>(
+    () => ExamGrader(getIt<IExamAiDataSource>()),
+  );
+  getIt.registerLazySingleton<IExamService>(
+    () => ExamServiceImpl(
+      getIt<IVocabularyService>(),
+      getIt<WordStateStore>(),
+      getIt<IExamRepository>(),
+      getIt<ExamQuestionGenerator>(),
+      getIt<ExamGrader>(),
+    ),
+  );
   getIt.registerLazySingleton<IDashboardLocalDataSource>(
     () => DashboardLocalDataSourceImpl(getIt<AppDatabase>()),
   );
@@ -104,7 +133,6 @@ Future<void> setupDependencies() async {
     () => DashboardServiceImpl(getIt<IDashboardRepository>()),
   );
 
-  getIt.registerLazySingleton<IExamAiDataSource>(ExamAiDataSourceImpl.new);
   getIt.registerLazySingleton<ICoachAiDataSource>(
     () => CoachAiDataSourceImpl(getIt<Dio>()),
   );

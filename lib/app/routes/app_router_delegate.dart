@@ -125,6 +125,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       HomeRoutePaths.examConfig => ExamConfigPage(
           levelCode: entry.params['level'],
           unitName: entry.params['unit'],
+          unitId: entry.params['unitId'],
         ),
       HomeRoutePaths.examSession => const ExamSessionPage(),
       HomeRoutePaths.examResult => const ExamResultPage(),

@@ -90,6 +90,16 @@ class AppNavigationNotifier extends ChangeNotifier {
     _openCoachRoute(CoachRoutePaths.feedback, {'feedbackId': feedbackId});
   }
 
+  void resetHomeToRoot() {
+    _configuration = _configuration.copyWith(
+      tab: AppTab.home,
+      homeStack: [HomeStackEntry(HomeRoutePaths.levelList, const {})],
+      clearExamDetail: true,
+      clearCoachStack: true,
+    );
+    notifyListeners();
+  }
+
   bool popCoachRoute() {
     if (_configuration.coachStack.length <= 1) {
       return false;
