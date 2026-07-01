@@ -11,7 +11,7 @@ class AppNavigationNotifier extends ChangeNotifier {
     _configuration = _configuration.copyWith(
       tab: tab,
       clearExamDetail: true,
-      clearCoachDetail: true,
+      clearCoachStack: tab != AppTab.coachHistory,
     );
     notifyListeners();
   }
@@ -27,7 +27,7 @@ class AppNavigationNotifier extends ChangeNotifier {
         HomeStackEntry(path, params),
       ],
       clearExamDetail: true,
-      clearCoachDetail: true,
+      clearCoachStack: true,
     );
     notifyListeners();
   }
@@ -49,7 +49,7 @@ class AppNavigationNotifier extends ChangeNotifier {
     _configuration = _configuration.copyWith(
       tab: AppTab.examHistory,
       examDetailId: examId,
-      clearCoachDetail: true,
+      clearCoachStack: true,
     );
     notifyListeners();
   }
@@ -64,22 +64,65 @@ class AppNavigationNotifier extends ChangeNotifier {
     return true;
   }
 
-  void openCoachDetail(String coachId) {
+  void _openCoachRoute(String path, Map<String, String> params) {
     _configuration = _configuration.copyWith(
       tab: AppTab.coachHistory,
-      coachDetailId: coachId,
+      coachStack: [
+        ..._configuration.coachStack,
+        CoachStackEntry(path, params),
+      ],
       clearExamDetail: true,
     );
     notifyListeners();
   }
 
-  bool popCoachDetail() {
-    if (_configuration.coachDetailId == null) {
+  void openCoachTermDetail({
+    required String unitId,
+    required String termId,
+  }) {
+    _openCoachRoute(CoachRoutePaths.word, {
+      'unitId': unitId,
+      'termId': termId,
+    });
+  }
+
+  void openCoachFeedbackDetail(String feedbackId) {
+    _openCoachRoute(CoachRoutePaths.feedback, {'feedbackId': feedbackId});
+  }
+
+  bool popCoachRoute() {
+    if (_configuration.coachStack.length <= 1) {
       return false;
     }
 
-    _configuration = _configuration.copyWith(clearCoachDetail: true);
+    final stack = List<CoachStackEntry>.from(_configuration.coachStack)
+      ..removeLast();
+
+    _configuration = _configuration.copyWith(coachStack: stack);
     notifyListeners();
     return true;
+  }
+
+  void startCoachFromHistory() {
+    _configuration = _configuration.copyWith(
+      tab: AppTab.home,
+      homeStack: const [
+        HomeStackEntry(HomeRoutePaths.levelList, {}),
+        HomeStackEntry(HomeRoutePaths.coachConfig, {}),
+      ],
+      clearExamDetail: true,
+      clearCoachStack: true,
+    );
+    notifyListeners();
+  }
+
+  void completeCoachSessionAndOpenHistory() {
+    _configuration = _configuration.copyWith(
+      tab: AppTab.coachHistory,
+      homeStack: const [HomeStackEntry(HomeRoutePaths.levelList, {})],
+      coachStack: const [CoachStackEntry(CoachRoutePaths.list, {})],
+      clearExamDetail: true,
+    );
+    notifyListeners();
   }
 }

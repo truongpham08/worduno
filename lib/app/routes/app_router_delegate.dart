@@ -53,7 +53,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
         return switch (_navigationNotifier.configuration.tab) {
           AppTab.home => _navigationNotifier.popHomeRoute(),
           AppTab.examHistory => _navigationNotifier.popExamDetail(),
-          AppTab.coachHistory => _navigationNotifier.popCoachDetail(),
+          AppTab.coachHistory => _navigationNotifier.popCoachRoute(),
           AppTab.dashboard => false,
         };
       },
@@ -70,7 +70,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     return switch (_navigationNotifier.configuration.tab) {
       AppTab.home => _navigationNotifier.popHomeRoute(),
       AppTab.examHistory => _navigationNotifier.popExamDetail(),
-      AppTab.coachHistory => _navigationNotifier.popCoachDetail(),
+      AppTab.coachHistory => _navigationNotifier.popCoachRoute(),
       AppTab.dashboard => false,
     };
   }
@@ -165,22 +165,36 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
   Widget _buildCoachHistoryNavigator(AppRoutePath configuration) {
     return Navigator(
       pages: [
-        const MaterialPage<void>(
-          key: ValueKey('coach-history-list'),
-          child: CoachHistoryPage(),
-        ),
-        if (configuration.coachDetailId != null)
-          MaterialPage<void>(
-            key: ValueKey('coach-detail-${configuration.coachDetailId}'),
-            child: CoachDetailPage(coachId: configuration.coachDetailId!),
-          ),
+        for (final entry in configuration.coachStack)
+          _buildCoachHistoryPage(entry),
       ],
       onPopPage: (route, result) {
         if (!route.didPop(result)) {
           return false;
         }
-        return _navigationNotifier.popCoachDetail();
+        return _navigationNotifier.popCoachRoute();
       },
+    );
+  }
+
+  Page<void> _buildCoachHistoryPage(CoachStackEntry entry) {
+    final child = switch (entry.path) {
+      CoachRoutePaths.list => const CoachHistoryPage(),
+      CoachRoutePaths.word => CoachWordHistoryPage(
+          unitId: entry.params['unitId'] ?? '',
+          termId: entry.params['termId'] ?? '',
+        ),
+      CoachRoutePaths.feedback => CoachFeedbackDetailPage(
+          feedbackId: entry.params['feedbackId'] ?? '',
+        ),
+      _ => const Scaffold(
+          body: Center(child: Text('Unknown coach route')),
+        ),
+    };
+
+    return MaterialPage<void>(
+      key: ValueKey('${entry.path}:${entry.params}'),
+      child: child,
     );
   }
 }
