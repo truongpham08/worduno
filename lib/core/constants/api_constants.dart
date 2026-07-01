@@ -12,4 +12,6 @@ class ApiConstants {
 
   static const String coachExplainPath = '/api/coach/explain';
   static const String coachEvaluatePath = '/api/coach/evaluate';
+  static const String examClozePath = '/api/exam/cloze';
+  static const String examEvaluateSentencePath = '/api/exam/evaluate-sentence';
 }

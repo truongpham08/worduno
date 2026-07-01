@@ -1,38 +1,71 @@
+import 'package:dio/dio.dart';
+
+import '../../../../core/constants/api_constants.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../dtos/exam_ai_dtos.dart';
 import 'i_exam_ai_data_source.dart';
 
-/// Stub until AI endpoints are published on the backend OpenAPI.
 class ExamAiDataSourceImpl implements IExamAiDataSource {
+  ExamAiDataSourceImpl(this._dio);
+
+  final Dio _dio;
+
   @override
-  Future<Map<String, dynamic>> generateClozeQuestion({
-    required String term,
+  Future<ClozeResponseDto> generateCloze({
+    required String word,
     required String definition,
-  }) {
-    throw const AppException(
-      'Exam AI endpoint is not available yet.',
-      code: 'exam_ai_unimplemented',
-    );
+    required String level,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiConstants.examClozePath,
+        data: {
+          'word': word,
+          'definition': definition,
+          'level': _mapLevel(level),
+        },
+      );
+      return ClozeResponseDto.fromJson(response.data!);
+    } on DioException catch (error) {
+      throw AppException(
+        error.message ?? 'Failed to generate cloze question.',
+        code: 'exam_cloze_failed',
+      );
+    }
   }
 
   @override
-  Future<bool> evaluateEnglishToVietnamese({
-    required String term,
-    required String userAnswer,
-  }) {
-    throw const AppException(
-      'Exam AI endpoint is not available yet.',
-      code: 'exam_ai_unimplemented',
-    );
+  Future<EvaluateSentenceResponseDto> evaluateSentenceWriting({
+    required String word,
+    required String definition,
+    required String sentence,
+  }) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        ApiConstants.examEvaluateSentencePath,
+        data: {
+          'word': word,
+          'definition': definition,
+          'sentence': sentence,
+        },
+      );
+      return EvaluateSentenceResponseDto.fromJson(response.data!);
+    } on DioException catch (error) {
+      throw AppException(
+        error.message ?? 'Failed to evaluate sentence.',
+        code: 'exam_evaluate_sentence_failed',
+      );
+    }
   }
 
-  @override
-  Future<Map<String, dynamic>> evaluateSentenceWriting({
-    required String term,
-    required String userSentence,
-  }) {
-    throw const AppException(
-      'Exam AI endpoint is not available yet.',
-      code: 'exam_ai_unimplemented',
-    );
+  String _mapLevel(String levelCode) {
+    final normalized = levelCode.toLowerCase();
+    if (normalized.contains('c1') || normalized.contains('c2')) {
+      return 'c1&c2';
+    }
+    if (normalized.contains('b2')) {
+      return 'b2';
+    }
+    return 'b1';
   }
 }

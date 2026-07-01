@@ -1,16 +1,15 @@
+import '../dtos/exam_ai_dtos.dart';
+
 abstract class IExamAiDataSource {
-  Future<Map<String, dynamic>> generateClozeQuestion({
-    required String term,
+  Future<ClozeResponseDto> generateCloze({
+    required String word,
     required String definition,
+    required String level,
   });
 
-  Future<bool> evaluateEnglishToVietnamese({
-    required String term,
-    required String userAnswer,
-  });
-
-  Future<Map<String, dynamic>> evaluateSentenceWriting({
-    required String term,
-    required String userSentence,
+  Future<EvaluateSentenceResponseDto> evaluateSentenceWriting({
+    required String word,
+    required String definition,
+    required String sentence,
   });
 }
