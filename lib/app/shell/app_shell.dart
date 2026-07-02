@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../routes/route_paths.dart';
+import '../../core/theme/app_colors.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({
@@ -45,15 +46,18 @@ class AppShell extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         currentIndex: currentTab.index,
         onTap: (index) => onTabSelected(AppTab.values[index]),
-        selectedItemColor: const Color(0xFF3B82F6),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        elevation: 8,
+        selectedItemColor: AppColors.white,
+        unselectedItemColor: const Color(0x80FFFFFF),
+        backgroundColor: AppColors.greenDark,
+        elevation: 0,
         selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          fontSize: 10,
         ),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
+        unselectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.w400,
+          fontSize: 10,
+        ),
         items: _items,
       ),
     );

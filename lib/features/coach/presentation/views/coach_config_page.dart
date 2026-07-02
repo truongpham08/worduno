@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
+import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -61,7 +64,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
     return ChangeNotifierProvider<CoachConfigViewModel>.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
+        backgroundColor: AppColors.bg,
         appBar: const WordunoAppBar(title: 'AI Coach'),
         body: Consumer<CoachConfigViewModel>(
           builder: (context, vm, _) {
@@ -95,7 +98,6 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                       _ChoiceChip(
                         label: 'All levels',
                         selected: vm.allLevelsSelected,
-                        color: const Color(0xFF8B5CF6),
                         onTap: vm.selectAllLevels,
                       ),
                       for (final level in vm.levels)
@@ -103,7 +105,6 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                           label: level.code.toUpperCase(),
                           selected: !vm.allLevelsSelected &&
                               vm.selectedLevelCodes.contains(level.code),
-                          color: const Color(0xFF8B5CF6),
                           onTap: () => vm.toggleLevel(level.code),
                         ),
                     ],
@@ -138,7 +139,6 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                     return _ChoiceChip(
                       label: filter.label,
                       selected: vm.starFilter == filter,
-                      color: const Color(0xFF8B5CF6),
                       onTap: () => vm.setStarFilter(filter),
                     );
                   }).toList(),
@@ -150,17 +150,8 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: LinearProgressIndicator(
-                      color: Color(0xFF8B5CF6),
-                      backgroundColor: Color(0xFFE5E7EB),
-                    ),
-                  )
-                else if (vm.isWideOpenSelection && vm.availableWordCount == 0)
-                  const Text(
-                    'All levels and units selected — word count is calculated when you change a filter or start.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF6B7280),
-                      height: 1.4,
+                      color: AppColors.coralMid,
+                      backgroundColor: AppColors.border,
                     ),
                   )
                 else
@@ -170,15 +161,12 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                         : '${vm.availableWordCount} words available • select 1–${vm.availableWordCount}',
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF6B7280),
+                      color: AppColors.mid,
                     ),
                   ),
                 if (vm.poolCountError != null) ...[
                   const SizedBox(height: 8),
-                  Text(
-                    vm.poolCountError!,
-                    style: const TextStyle(color: Color(0xFFEF4444), fontSize: 13),
-                  ),
+                  AppErrorBanner(message: vm.poolCountError!),
                   TextButton(
                     onPressed: vm.isPoolCountLoading ? null : vm.retryPoolCount,
                     child: const Text('Retry word count'),
@@ -193,7 +181,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                             ? () => vm.setWordCount(vm.wordCount - 1)
                             : null,
                         icon: const Icon(Icons.remove_circle_outline),
-                        color: const Color(0xFF8B5CF6),
+                        color: AppColors.coralMid,
                       ),
                       Expanded(
                         child: Slider(
@@ -203,7 +191,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                           divisions: vm.availableWordCount > 1
                               ? vm.availableWordCount - 1
                               : 1,
-                          activeColor: const Color(0xFF8B5CF6),
+                          activeColor: AppColors.coralMid,
                           label: '${vm.wordCount}',
                           onChanged: (v) => vm.setWordCount(v.round()),
                         ),
@@ -213,7 +201,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                             ? () => vm.setWordCount(vm.wordCount + 1)
                             : null,
                         icon: const Icon(Icons.add_circle_outline),
-                        color: const Color(0xFF8B5CF6),
+                        color: AppColors.coralMid,
                       ),
                     ],
                   ),
@@ -223,7 +211,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
+                        color: AppColors.coralDark,
                       ),
                     ),
                   ),
@@ -231,7 +219,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                 const SizedBox(height: 28),
                 _StartButton(
                   loading: vm.isStarting,
-                  enabled: (vm.isWideOpenSelection || vm.availableWordCount > 0) &&
+                  enabled: vm.availableWordCount > 0 &&
                       !vm.isStarting &&
                       !vm.isPoolCountLoading,
                   onTap: () => _onStart(context),
@@ -257,7 +245,7 @@ class _SectionTitle extends StatelessWidget {
       style: const TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF111827),
+        color: AppColors.ink,
       ),
     );
   }
@@ -278,27 +266,17 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.card(),
       child: Row(
         children: [
           Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF8B5CF6).withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.beigeLight,
+              borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
             ),
-            child: Icon(icon, color: const Color(0xFF8B5CF6)),
+            child: Icon(icon, color: AppColors.greenMid),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -310,7 +288,7 @@ class _InfoCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -318,7 +296,7 @@ class _InfoCard extends StatelessWidget {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.mid,
                   ),
                 ),
               ],
@@ -334,13 +312,11 @@ class _ChoiceChip extends StatelessWidget {
   const _ChoiceChip({
     required this.label,
     required this.selected,
-    required this.color,
     required this.onTap,
   });
 
   final String label;
   final bool selected;
-  final Color color;
   final VoidCallback onTap;
 
   @override
@@ -351,10 +327,10 @@ class _ChoiceChip extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? color : Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          color: selected ? AppColors.greenDark : AppColors.white,
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           border: Border.all(
-            color: selected ? color : const Color(0xFFE5E7EB),
+            color: selected ? AppColors.greenDark : AppColors.border,
           ),
         ),
         child: Text(
@@ -362,7 +338,7 @@ class _ChoiceChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : const Color(0xFF374151),
+            color: selected ? AppColors.white : AppColors.ink,
           ),
         ),
       ),
@@ -388,9 +364,9 @@ class _DropdownField<T> extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
+        border: Border.all(color: AppColors.border),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
@@ -423,17 +399,13 @@ class _StartButton extends StatelessWidget {
       height: 54,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: enabled
-                ? const [Color(0xFF8B5CF6), Color(0xFF6366F1)]
-                : [Colors.grey.shade400, Colors.grey.shade500],
-          ),
-          borderRadius: BorderRadius.circular(16),
+          color: enabled ? AppColors.coralDark : AppColors.light,
+          borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: const Color(0xFF8B5CF6).withOpacity(0.35),
-                    blurRadius: 16,
+                    color: AppColors.coralDark.withValues(alpha: 0.2),
+                    blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
                 ]
@@ -442,7 +414,7 @@ class _StartButton extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
             onTap: enabled && !loading ? onTap : null,
             child: Center(
               child: loading
@@ -451,18 +423,18 @@ class _StartButton extends StatelessWidget {
                       height: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        color: Colors.white,
+                        color: AppColors.white,
                       ),
                     )
                   : const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.smart_toy_rounded, color: Colors.white),
+                        Icon(Icons.smart_toy_rounded, color: AppColors.white),
                         SizedBox(width: 8),
                         Text(
                           'Start Coach Session',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.white,
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),

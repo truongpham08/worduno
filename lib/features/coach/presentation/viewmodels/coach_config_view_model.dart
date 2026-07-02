@@ -82,9 +82,6 @@ class CoachConfigViewModel extends ChangeNotifier {
 
   Future<void> reload() => _init();
 
-  bool get isWideOpenSelection =>
-      !isUnitScoped && allLevelsSelected && allUnitsSelected;
-
   Future<void> _init() async {
     isLoading = true;
     initErrorMessage = null;
@@ -97,9 +94,7 @@ class CoachConfigViewModel extends ChangeNotifier {
       } else {
         levels = await _vocabularyService.getLevels();
         await _loadUnitOptions();
-        if (!isWideOpenSelection) {
-          await _refreshPoolCount();
-        }
+        await _refreshPoolCount();
       }
     } catch (error) {
       initErrorMessage = messageFromError(error);
@@ -131,12 +126,7 @@ class CoachConfigViewModel extends ChangeNotifier {
     selectedUnitKey = null;
     allUnitsSelected = true;
     await _loadUnitOptions();
-    if (isWideOpenSelection) {
-      availableWordCount = 0;
-      notifyListeners();
-    } else {
-      await _refreshPoolCount();
-    }
+    await _refreshPoolCount();
   }
 
   Future<void> retryPoolCount() => _refreshPoolCount();
@@ -147,12 +137,7 @@ class CoachConfigViewModel extends ChangeNotifier {
     selectedUnitKey = null;
     allUnitsSelected = true;
     await _loadUnitOptions();
-    if (isWideOpenSelection) {
-      availableWordCount = 0;
-      notifyListeners();
-    } else {
-      await _refreshPoolCount();
-    }
+    await _refreshPoolCount();
   }
 
   Future<void> selectUnit(String? key) async {
@@ -163,20 +148,11 @@ class CoachConfigViewModel extends ChangeNotifier {
       allUnitsSelected = false;
       selectedUnitKey = key;
     }
-    if (isWideOpenSelection) {
-      availableWordCount = 0;
-      notifyListeners();
-    } else {
-      await _refreshPoolCount();
-    }
+    await _refreshPoolCount();
   }
 
   Future<void> setStarFilter(CoachStarFilter filter) async {
     starFilter = filter;
-    if (isWideOpenSelection) {
-      notifyListeners();
-      return;
-    }
     await _refreshPoolCount();
   }
 

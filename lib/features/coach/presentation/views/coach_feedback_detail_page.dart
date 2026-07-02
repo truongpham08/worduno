@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -50,7 +52,7 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.error,
             ),
             child: const Text('Delete'),
           ),
@@ -71,7 +73,7 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
     return ChangeNotifierProvider<CoachFeedbackDetailViewModel>.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
+        backgroundColor: AppColors.bg,
         appBar: WordunoAppBar(
           title: 'Feedback Detail',
           actions: [
@@ -109,7 +111,7 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -117,7 +119,7 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
                   CoachHistoryViewModel.formatDateTime(feedback.date),
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.mid,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -125,10 +127,11 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
+                    color: AppColors.white,
+                    borderRadius:
+                        BorderRadius.circular(AppDecorations.radiusSm),
                     border: const Border(
-                      left: BorderSide(color: Color(0xFF8B5CF6), width: 4),
+                      left: BorderSide(color: AppColors.greenMid, width: 4),
                     ),
                   ),
                   child: Text(
@@ -136,7 +139,7 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontStyle: FontStyle.italic,
-                      color: Color(0xFF374151),
+                      color: AppColors.ink,
                       height: 1.45,
                     ),
                   ),
@@ -145,24 +148,24 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
                 _DetailCard(
                   title: 'Grammar',
                   content: result.grammar,
-                  color: const Color(0xFFDBEAFE),
-                  iconColor: const Color(0xFF2563EB),
+                  color: AppColors.blue,
+                  iconColor: AppColors.greenDark,
                   icon: Icons.menu_book_outlined,
                 ),
                 const SizedBox(height: 10),
                 _DetailCard(
                   title: 'Vocabulary',
                   content: result.vocabulary,
-                  color: const Color(0xFFD1FAE5),
-                  iconColor: const Color(0xFF059669),
+                  color: AppColors.green,
+                  iconColor: AppColors.greenDark,
                   icon: Icons.edit_outlined,
                 ),
                 const SizedBox(height: 10),
                 _DetailCard(
                   title: 'Naturalness',
                   content: result.naturalness,
-                  color: const Color(0xFFFEF3C7),
-                  iconColor: const Color(0xFFD97706),
+                  color: AppColors.beigeLight,
+                  iconColor: AppColors.coralMid,
                   icon: Icons.chat_bubble_outline,
                 ),
                 if (result.suggestions.isNotEmpty) ...[
@@ -170,8 +173,8 @@ class _CoachFeedbackDetailPageState extends State<CoachFeedbackDetailPage> {
                   _DetailCard(
                     title: 'Suggestion',
                     content: result.suggestions.map((s) => '• $s').join('\n'),
-                    color: const Color(0xFFFCE7F3),
-                    iconColor: const Color(0xFFDB2777),
+                    color: AppColors.beige,
+                    iconColor: AppColors.coralDark,
                     icon: Icons.lightbulb_outline,
                   ),
                 ],
@@ -206,7 +209,7 @@ class _DetailCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,7 +233,7 @@ class _DetailCard extends StatelessWidget {
                   content,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF374151),
+                    color: AppColors.ink,
                     height: 1.45,
                   ),
                 ),

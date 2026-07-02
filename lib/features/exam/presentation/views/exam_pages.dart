@@ -5,8 +5,12 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
+import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../shared/vocabulary/domain/entities/unit.dart';
 import '../../domain/entities/exam_config.dart';
 import '../../domain/entities/exam_history.dart';
@@ -76,17 +80,27 @@ class _ExamConfigPageState extends State<ExamConfigPage> {
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Color(0xFF111827)),
-          title: const Text(
-            'Create Exam',
-            style: TextStyle(
-              color: Color(0xFF111827),
-              fontWeight: FontWeight.w700,
-            ),
+        backgroundColor: AppColors.bg,
+        appBar: WordunoAppBar(
+          title: 'Create Exam',
+          titleWidget: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Create Exam',
+                style: TextStyle(
+                  color: AppColors.ink,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 17,
+                ),
+              ),
+              SizedBox(width: 6),
+              Icon(
+                Icons.auto_awesome,
+                size: 18,
+                color: AppColors.coralMid,
+              ),
+            ],
           ),
         ),
         body: Consumer<ExamConfigViewModel>(
@@ -104,20 +118,22 @@ class _ExamConfigPageState extends State<ExamConfigPage> {
             return Stack(
               children: [
                 ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                   children: [
-                    _SectionCard(
+                    _ExamSectionCard(
                       title: 'Level',
-                      child: DropdownButtonFormField<String>(
+                      child: _ExamDropdownField<String>(
                         value: vm.selectedLevelCode.isEmpty
                             ? null
                             : vm.selectedLevelCode,
-                        decoration: _inputDecoration('Select level'),
+                        hint: 'Select level',
                         items: vm.levels
                             .map(
                               (level) => DropdownMenuItem(
                                 value: level.code,
-                                child: Text(level.code.toUpperCase()),
+                                child: Text(
+                                  level.code.toUpperCase().replaceAll('&', ' & '),
+                                ),
                               ),
                             )
                             .toList(),
@@ -126,23 +142,21 @@ class _ExamConfigPageState extends State<ExamConfigPage> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    _SectionCard(
+                    const SizedBox(height: 14),
+                    _ExamSectionCard(
                       title: 'Unit',
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SwitchListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: const Text('All units'),
+                          _ExamToggleRow(
+                            label: 'All units',
                             value: vm.allUnits,
-                            activeThumbColor: const Color(0xFF3B82F6),
                             onChanged: vm.setAllUnits,
                           ),
-                          if (!vm.allUnits)
-                            DropdownButtonFormField<String>(
+                          if (!vm.allUnits) ...[
+                            const SizedBox(height: 12),
+                            _ExamDropdownField<String>(
                               value: vm.selectedUnitName,
-                              decoration: _inputDecoration('Select unit'),
+                              hint: 'Select unit',
                               items: vm.units
                                   .map(
                                     (unit) => DropdownMenuItem(
@@ -162,41 +176,43 @@ class _ExamConfigPageState extends State<ExamConfigPage> {
                                 if (unit != null) vm.selectUnit(unit);
                               },
                             ),
+                          ],
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    _SectionCard(
+                    const SizedBox(height: 14),
+                    _ExamSectionCard(
                       title: 'Options',
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SwitchListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: const Text('Starred words only'),
+                          _ExamToggleRow(
+                            label: 'Starred words only',
                             value: vm.starOnly,
-                            activeThumbColor: const Color(0xFF3B82F6),
                             onChanged: vm.setStarOnly,
                           ),
-                          const Divider(height: 24),
-                          const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Question count',
-                              style: TextStyle(fontWeight: FontWeight.w600),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            child: Divider(height: 1, color: AppColors.border),
+                          ),
+                          const Text(
+                            'Question count',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.mid,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           Wrap(
                             spacing: 8,
+                            runSpacing: 8,
                             children: ExamConfig.questionCountOptions
                                 .map(
-                                  (count) => ChoiceChip(
-                                    label: Text('$count'),
+                                  (count) => _ExamCountChip(
+                                    count: count,
                                     selected: vm.questionCount == count,
-                                    selectedColor:
-                                        const Color(0xFFDBEAFE),
-                                    onSelected: (_) =>
-                                        vm.setQuestionCount(count),
+                                    onTap: () => vm.setQuestionCount(count),
                                   ),
                                 )
                                 .toList(),
@@ -204,74 +220,82 @@ class _ExamConfigPageState extends State<ExamConfigPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    _SectionCard(
+                    const SizedBox(height: 14),
+                    _ExamSectionCard(
                       title: 'Question types',
                       child: Column(
-                        children: ExamQuestionType.values
-                            .map(
-                              (type) => CheckboxListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(type.label),
-                                value: vm.enabledTypes.contains(type),
-                                activeColor: const Color(0xFF3B82F6),
-                                onChanged: (value) {
-                                  if (value == null) return;
-                                  vm.toggleQuestionType(type, value);
-                                },
-                              ),
-                            )
-                            .toList(),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${vm.enabledTypes.length} selected · choose at least one',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.mid,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          for (var i = 0;
+                              i < ExamQuestionType.values.length;
+                              i++) ...[
+                            if (i > 0) const SizedBox(height: 8),
+                            _ExamTypeCheckboxRow(
+                              type: ExamQuestionType.values[i],
+                              value: vm.enabledTypes
+                                  .contains(ExamQuestionType.values[i]),
+                              onChanged: (value) {
+                                if (value == null) return;
+                                vm.toggleQuestionType(
+                                  ExamQuestionType.values[i],
+                                  value,
+                                );
+                              },
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                     if (vm.errorMessage != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        vm.errorMessage!,
-                        style: const TextStyle(color: Color(0xFFEF4444)),
-                      ),
+                      const SizedBox(height: 14),
+                      AppErrorBanner(message: vm.errorMessage!),
                     ],
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: vm.canStart ? _startExam : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.coralDark,
+                          disabledBackgroundColor: AppColors.light,
+                          foregroundColor: AppColors.white,
+                          disabledForegroundColor: AppColors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppDecorations.radiusLg,
+                            ),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          vm.isStarting ? 'Starting...' : 'Start Exam',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 if (vm.isStarting)
-                  const ColoredBox(
-                    color: Color(0x88000000),
-                    child: Center(
+                  ColoredBox(
+                    color: AppColors.ink.withValues(alpha: 0.45),
+                    child: const Center(
                       child: AppLoading(message: 'Generating exam...'),
                     ),
                   ),
               ],
-            );
-          },
-        ),
-        bottomNavigationBar: Consumer<ExamConfigViewModel>(
-          builder: (context, vm, _) {
-            return SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: vm.canStart ? _startExam : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4444),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      vm.isStarting ? 'Starting...' : 'Start Exam',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             );
           },
         ),
@@ -321,19 +345,8 @@ class _ExamSessionPageState extends State<ExamSessionPage> {
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Color(0xFF111827)),
-          title: const Text(
-            'Exam',
-            style: TextStyle(
-              color: Color(0xFF111827),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        backgroundColor: AppColors.bg,
+        appBar: const WordunoAppBar(title: 'Exam'),
         body: Consumer<ExamSessionViewModel>(
           builder: (context, vm, _) {
             final paper = vm.paper;
@@ -348,10 +361,7 @@ class _ExamSessionPageState extends State<ExamSessionPage> {
                 if (vm.errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(
-                      vm.errorMessage!,
-                      style: const TextStyle(color: Color(0xFFEF4444)),
-                    ),
+                    child: AppErrorBanner(message: vm.errorMessage!),
                   ),
                 Expanded(
                   child: ListView.builder(
@@ -388,10 +398,11 @@ class _ExamSessionPageState extends State<ExamSessionPage> {
                   child: ElevatedButton(
                     onPressed: vm.isSubmitting ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B82F6),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.coralDark,
+                      foregroundColor: AppColors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius:
+                            BorderRadius.circular(AppDecorations.radiusSm),
                       ),
                       elevation: 0,
                     ),
@@ -459,17 +470,7 @@ class _QuestionCardState extends State<_QuestionCard> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -480,14 +481,14 @@ class _QuestionCardState extends State<_QuestionCard> {
                 height: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDBEAFE),
+                  color: AppColors.beigeLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${widget.index}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF3B82F6),
+                    color: AppColors.coralDark,
                   ),
                 ),
               ),
@@ -495,10 +496,10 @@ class _QuestionCardState extends State<_QuestionCard> {
               Expanded(
                 child: Text(
                   widget.question.type.label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[600],
+                    color: AppColors.mid,
                   ),
                 ),
               ),
@@ -510,7 +511,7 @@ class _QuestionCardState extends State<_QuestionCard> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF111827),
+              color: AppColors.ink,
             ),
           ),
           const SizedBox(height: 12),
@@ -542,7 +543,7 @@ class _QuestionCardState extends State<_QuestionCard> {
             title: Text(option),
             value: option,
             groupValue: widget.answer,
-            activeColor: const Color(0xFF3B82F6),
+            activeColor: AppColors.coralDark,
             onChanged: (value) {
               if (value != null) widget.onChanged(value);
             },
@@ -679,19 +680,8 @@ class _ExamResultPageState extends State<ExamResultPage> {
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: const Text(
-            'Exam Result',
-            style: TextStyle(
-              color: Color(0xFF111827),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        backgroundColor: AppColors.bg,
+        appBar: const WordunoAppBar(title: 'Exam Result', showBack: false),
         body: Consumer<ExamResultViewModel>(
           builder: (context, vm, _) {
             final result = vm.result;
@@ -726,10 +716,11 @@ class _ExamResultPageState extends State<ExamResultPage> {
                   child: OutlinedButton(
                     onPressed: vm.toggleReview,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF3B82F6),
-                      side: const BorderSide(color: Color(0xFF3B82F6)),
+                      foregroundColor: AppColors.coralDark,
+                      side: const BorderSide(color: AppColors.coralDark),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius:
+                            BorderRadius.circular(AppDecorations.radiusSm),
                       ),
                     ),
                     child: const Text(
@@ -749,10 +740,11 @@ class _ExamResultPageState extends State<ExamResultPage> {
                           .resetHomeToRoot();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3B82F6),
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppColors.coralDark,
+                      foregroundColor: AppColors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius:
+                            BorderRadius.circular(AppDecorations.radiusSm),
                       ),
                       elevation: 0,
                     ),
@@ -797,28 +789,31 @@ class _SimpleScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = AppColors.examScore(percentage / 100);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF3B82F6), Color(0xFF6366F1)],
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: palette.bg,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusLg),
       ),
       child: Column(
         children: [
           Text(
             '${percentage.round()}%',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: palette.fg,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            style: TextStyle(
+              color: palette.fg.withValues(alpha: 0.8),
+              fontSize: 16,
+            ),
           ),
         ],
       ),
@@ -854,14 +849,13 @@ class _ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        answer.isCorrect ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final color = answer.isCorrect ? AppColors.greenDark : AppColors.error;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusLg),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
@@ -935,19 +929,8 @@ class _ExamHistoryPageState extends State<ExamHistoryPage> {
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-          title: const Text(
-            'Exam History',
-            style: TextStyle(
-              color: Color(0xFF111827),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
+        backgroundColor: AppColors.bg,
+        appBar: const WordunoAppBar(title: 'Exam History'),
         body: Consumer<ExamHistoryViewModel>(
           builder: (context, vm, _) {
             if (vm.isLoading) {
@@ -985,8 +968,8 @@ class _HistoryTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       ),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -999,9 +982,9 @@ class _HistoryTile extends StatelessWidget {
         ),
         trailing: Text(
           '${item.score.round()}%',
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF3B82F6),
+            color: AppColors.examScore(item.score / 100).fg,
           ),
         ),
         onTap: () => context
@@ -1070,20 +1053,12 @@ class _ExamDetailPageState extends State<ExamDetailPage> {
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: const Text(
-            'Exam Detail',
-            style: TextStyle(
-              color: Color(0xFF111827),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+        backgroundColor: AppColors.bg,
+        appBar: WordunoAppBar(
+          title: 'Exam Detail',
           actions: [
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
+              icon: const Icon(Icons.delete_outline, color: AppColors.error),
               onPressed: _delete,
             ),
           ],
@@ -1135,14 +1110,13 @@ class _HistoryQuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        item.isCorrect ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final color = item.isCorrect ? AppColors.greenDark : AppColors.error;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1168,8 +1142,8 @@ class _HistoryQuestionCard extends StatelessWidget {
 // Shared widgets
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+class _ExamSectionCard extends StatelessWidget {
+  const _ExamSectionCard({required this.title, required this.child});
 
   final String title;
   final Widget child;
@@ -1177,20 +1151,18 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      decoration: AppDecorations.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF111827),
+              color: AppColors.ink,
             ),
           ),
           const SizedBox(height: 12),
@@ -1201,13 +1173,275 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
+class _ExamDropdownField<T> extends StatelessWidget {
+  const _ExamDropdownField({
+    required this.value,
+    required this.hint,
+    required this.items,
+    required this.onChanged,
+  });
+
+  final T? value;
+  final String hint;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: _examInputDecoration(hint),
+      icon: const Icon(
+        Icons.keyboard_arrow_down_rounded,
+        color: AppColors.mid,
+        size: 22,
+      ),
+      style: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
+      dropdownColor: AppColors.white,
+      borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+      items: items,
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _ExamToggleRow extends StatelessWidget {
+  const _ExamToggleRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.ink,
+            ),
+          ),
+        ),
+        Switch(
+          value: value,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+}
+
+class _ExamCountChip extends StatelessWidget {
+  const _ExamCountChip({
+    required this.count,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final int count;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppColors.beigeLight : AppColors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
+        side: BorderSide(
+          color: selected ? AppColors.coral : AppColors.border,
+          width: 1.5,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (selected) ...[
+                const Icon(
+                  Icons.check_rounded,
+                  size: 16,
+                  color: AppColors.coralDark,
+                ),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: selected ? AppColors.coralDark : AppColors.ink,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExamTypeCheckboxRow extends StatelessWidget {
+  const _ExamTypeCheckboxRow({
+    required this.type,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final ExamQuestionType type;
+  final bool value;
+  final ValueChanged<bool?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: value
+          ? AppColors.withAlpha27(AppColors.green)
+          : AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+        side: BorderSide(
+          color: value
+              ? AppColors.greenMid.withValues(alpha: 0.4)
+              : Colors.transparent,
+          width: 2,
+        ),
+      ),
+      child: InkWell(
+        onTap: () => onChanged(!value),
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 11, 14, 11),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            type.label,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                        ),
+                        if (type.isAiPowered) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.withAlpha27(
+                                AppColors.beigeLight,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                AppDecorations.radiusPill,
+                              ),
+                            ),
+                            child: const Text(
+                              'AI',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.coralDark,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      type.description,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.mid,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: Checkbox(
+                  value: value,
+                  onChanged: onChanged,
+                  activeColor: AppColors.greenDark,
+                  side: const BorderSide(color: AppColors.border, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+InputDecoration _examInputDecoration(String hint) {
+  return InputDecoration(
+    hintText: hint,
+    hintStyle: const TextStyle(
+      color: AppColors.light,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+    ),
+    filled: true,
+    fillColor: AppColors.surface,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+      borderSide: const BorderSide(color: AppColors.border, width: 1.5),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+      borderSide: const BorderSide(color: AppColors.border, width: 1.5),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+      borderSide: const BorderSide(color: AppColors.greenMid, width: 1.5),
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  );
+}
+
 InputDecoration _inputDecoration(String hint) {
   return InputDecoration(
     hintText: hint,
     filled: true,
-    fillColor: const Color(0xFFF9FAFB),
+    fillColor: AppColors.surface,
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       borderSide: BorderSide.none,
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/navigation/app_navigation_notifier.dart';
 import '../../app/routes/route_paths.dart';
+import '../theme/app_colors.dart';
 
 /// Consistent back control wired to [AppNavigationNotifier].
 class AppBackButton extends StatelessWidget {
@@ -32,13 +33,24 @@ class AppBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      icon: const Icon(
-        Icons.arrow_back_ios_new_rounded,
-        size: 19,
-        color: Color(0xFF111827),
+    return Material(
+      color: AppColors.white,
+      shape: const CircleBorder(),
+      elevation: 2,
+      shadowColor: AppColors.greenDark.withValues(alpha: 0.06),
+      child: InkWell(
+        onTap: onPressed ?? () => handleDefaultBack(context),
+        customBorder: const CircleBorder(),
+        child: const SizedBox(
+          width: 34,
+          height: 34,
+          child: Icon(
+            Icons.chevron_left_rounded,
+            size: 22,
+            color: AppColors.mid,
+          ),
+        ),
       ),
-      onPressed: onPressed ?? () => handleDefaultBack(context),
     );
   }
 }
@@ -47,6 +59,7 @@ class WordunoAppBar extends StatelessWidget implements PreferredSizeWidget {
   const WordunoAppBar({
     super.key,
     required this.title,
+    this.titleWidget,
     this.showBack = true,
     this.onBack,
     this.actions,
@@ -55,6 +68,7 @@ class WordunoAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   final String title;
+  final Widget? titleWidget;
   final bool showBack;
   final VoidCallback? onBack;
   final List<Widget>? actions;
@@ -62,7 +76,7 @@ class WordunoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final TextStyle? titleStyle;
 
   static const _defaultTitleStyle = TextStyle(
-    color: Color(0xFF111827),
+    color: AppColors.ink,
     fontWeight: FontWeight.w700,
     fontSize: 18,
   );
@@ -73,18 +87,25 @@ class WordunoAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
+      foregroundColor: AppColors.ink,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
       centerTitle: centerTitle,
       automaticallyImplyLeading: false,
       leading: showBack
-          ? AppBackButton(onPressed: onBack)
+          ? Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: AppBackButton(onPressed: onBack),
+            )
           : null,
-      title: Text(
-        title,
-        style: titleStyle ?? _defaultTitleStyle,
-      ),
-      iconTheme: const IconThemeData(color: Color(0xFF111827)),
+      leadingWidth: showBack ? 50 : null,
+      title: titleWidget ??
+          Text(
+            title,
+            style: titleStyle ?? _defaultTitleStyle,
+          ),
+      iconTheme: const IconThemeData(color: AppColors.ink),
       actions: actions,
     );
   }
@@ -109,19 +130,24 @@ class LexiaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.greenDark,
+      foregroundColor: AppColors.white,
       elevation: 0,
       centerTitle: true,
       automaticallyImplyLeading: false,
       leading: showBack
-          ? AppBackButton(onPressed: onBack)
+          ? IconButton(
+              icon: const Icon(Icons.chevron_left_rounded),
+              onPressed: onBack ?? () => AppBackButton.handleDefaultBack(context),
+            )
           : null,
       title: const Text(
         'Lexia',
         style: TextStyle(
-          color: Color(0xFF3B82F6),
+          color: AppColors.white,
           fontWeight: FontWeight.w800,
-          fontSize: 20,
+          fontSize: 16,
+          letterSpacing: 0.5,
         ),
       ),
       actions: actions,

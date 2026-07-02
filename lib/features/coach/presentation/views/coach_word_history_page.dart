@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -58,7 +60,7 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.error,
             ),
             child: const Text('Delete'),
           ),
@@ -79,7 +81,7 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
     return ChangeNotifierProvider<CoachWordHistoryViewModel>.value(
       value: _viewModel,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
+        backgroundColor: AppColors.bg,
         appBar: WordunoAppBar(
           title: 'Word Coach',
           actions: [
@@ -119,13 +121,10 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                    decoration: AppDecorations.card(),
                     child: const Text(
                       'No explanation saved for this term yet.',
-                      style: TextStyle(color: Color(0xFF6B7280)),
+                      style: TextStyle(color: AppColors.mid),
                     ),
                   ),
                 const SizedBox(height: 24),
@@ -134,7 +133,7 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -142,13 +141,10 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                    decoration: AppDecorations.card(),
                     child: const Text(
                       'No feedback yet for this term.',
-                      style: TextStyle(color: Color(0xFF6B7280)),
+                      style: TextStyle(color: AppColors.mid),
                     ),
                   )
                 else
@@ -162,7 +158,8 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
                               .read<AppNavigationNotifier>()
                               .openCoachFeedbackDetail(feedback.id);
                         },
-                        onDelete: () => _confirmDeleteFeedback(context, vm, feedback),
+                        onDelete: () =>
+                            _confirmDeleteFeedback(context, vm, feedback),
                       ),
                     ),
               ],
@@ -191,7 +188,7 @@ class _CoachWordHistoryPageState extends State<CoachWordHistoryPage> {
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.error,
             ),
             child: const Text('Delete'),
           ),
@@ -215,12 +212,8 @@ class _WordHeader extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFEEF2FF), Color(0xFFEDE9FE)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.beigeLight,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,7 +223,7 @@ class _WordHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111827),
+              color: AppColors.ink,
             ),
           ),
           const SizedBox(height: 6),
@@ -239,7 +232,7 @@ class _WordHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF8B5CF6),
+              color: AppColors.greenMid,
             ),
           ),
           const SizedBox(height: 8),
@@ -247,7 +240,7 @@ class _WordHeader extends StatelessWidget {
             term.definition,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF4B5563),
+              color: AppColors.mid,
               height: 1.4,
             ),
           ),
@@ -271,10 +264,10 @@ class _FeedbackListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
@@ -288,7 +281,7 @@ class _FeedbackListTile extends StatelessWidget {
                       CoachHistoryViewModel.formatDateTime(feedback.date),
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF9CA3AF),
+                        color: AppColors.light,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -296,10 +289,11 @@ class _FeedbackListTile extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(10),
+                        color: AppColors.surface,
+                        borderRadius:
+                            BorderRadius.circular(AppDecorations.radiusSm),
                         border: const Border(
-                          left: BorderSide(color: Color(0xFF8B5CF6), width: 3),
+                          left: BorderSide(color: AppColors.greenMid, width: 3),
                         ),
                       ),
                       child: Text(
@@ -308,7 +302,7 @@ class _FeedbackListTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF374151),
+                          color: AppColors.ink,
                         ),
                       ),
                     ),
@@ -317,10 +311,10 @@ class _FeedbackListTile extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, size: 20),
-                color: const Color(0xFF9CA3AF),
+                color: AppColors.light,
                 onPressed: onDelete,
               ),
-              const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+              const Icon(Icons.chevron_right, color: AppColors.light),
             ],
           ),
         ),

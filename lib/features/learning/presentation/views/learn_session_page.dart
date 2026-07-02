@@ -2,6 +2,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -96,7 +98,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
     final vm = context.watch<LearnSessionViewModel>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F2FA),
+      backgroundColor: AppColors.bg,
       body: SafeArea(
         child: vm.isLoading
             ? const AppLoading(message: 'Loading session...')
@@ -125,20 +127,14 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
               width: 90,
               height: 90,
               decoration: BoxDecoration(
-                color: const Color(0xFFD1FAE5),
+                color: AppColors.green,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF10B981).withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                boxShadow: AppDecorations.shadowMd,
               ),
               child: const Icon(
                 Icons.check_circle_rounded,
                 size: 50,
-                color: Color(0xFF10B981),
+                color: AppColors.greenDark,
               ),
             ),
             const SizedBox(height: 28),
@@ -147,7 +143,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111827),
+                color: AppColors.ink,
               ),
             ),
             const SizedBox(height: 12),
@@ -156,7 +152,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
                 height: 1.45,
               ),
             ),
@@ -168,22 +164,12 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF3B82F6).withOpacity(0.25),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                decoration: AppDecorations.pillButton(AppColors.greenDark),
                 child: const Center(
                   child: Text(
                     'Back to List',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -214,7 +200,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
               ),
             ),
             const SizedBox(height: 20),
@@ -226,13 +212,14 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.circular(14),
+                  color: AppColors.greenDark,
+                  borderRadius:
+                      BorderRadius.circular(AppDecorations.radiusSm),
                 ),
                 child: const Text(
                   'Back to List',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -277,7 +264,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     size: 19,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
               ),
@@ -287,9 +274,9 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 7,
-                    backgroundColor: const Color(0xFFE5E7EB),
+                    backgroundColor: AppColors.border,
                     valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF3B82F6)),
+                        AppColors.greenDark),
                   ),
                 ),
               ),
@@ -299,7 +286,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF374151),
+                  color: AppColors.mid,
                 ),
               ),
             ],
@@ -320,7 +307,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
+                          color: AppColors.ink,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -333,13 +320,13 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                         child: Container(
                           padding: const EdgeInsets.all(5),
                           decoration: const BoxDecoration(
-                            color: Color(0xFFE5E7EB),
+                            color: AppColors.surface,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.undo_rounded,
                             size: 15,
-                            color: Color(0xFF4B5563),
+                            color: AppColors.mid,
                           ),
                         ),
                       ),
@@ -357,7 +344,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: const Color(0xFF3B82F6),
+                      color: AppColors.greenDark,
                       width: 1.5,
                     ),
                   ),
@@ -366,7 +353,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                       Icon(
                         Icons.shuffle_rounded,
                         size: 14,
-                        color: Color(0xFF3B82F6),
+                        color: AppColors.greenDark,
                       ),
                       SizedBox(width: 5),
                       Text(
@@ -374,7 +361,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF3B82F6),
+                          color: AppColors.greenDark,
                         ),
                       ),
                     ],
@@ -443,20 +430,14 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: AppColors.blue,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF3B82F6).withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              boxShadow: AppDecorations.shadowSm,
             ),
             child: const Icon(
               Icons.volume_up_outlined,
               size: 24,
-              color: Color(0xFF3B82F6),
+              color: AppColors.greenDark,
             ),
           ),
         ),
@@ -475,8 +456,9 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(16),
+                      color: AppColors.errorBg,
+                      borderRadius:
+                          BorderRadius.circular(AppDecorations.radiusLg),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -484,13 +466,13 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                         Icon(
                           Icons.refresh_rounded,
                           size: 18,
-                          color: Color(0xFFEF4444),
+                          color: AppColors.coralDark,
                         ),
                         SizedBox(width: 8),
                         Text(
                           'Still Learning',
                           style: TextStyle(
-                            color: Color(0xFFEF4444),
+                            color: AppColors.coralDark,
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -508,8 +490,9 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFD1FAE5),
-                      borderRadius: BorderRadius.circular(16),
+                      color: AppColors.green,
+                      borderRadius:
+                          BorderRadius.circular(AppDecorations.radiusLg),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -517,13 +500,13 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                         Icon(
                           Icons.check_rounded,
                           size: 18,
-                          color: Color(0xFF10B981),
+                          color: AppColors.greenDark,
                         ),
                         SizedBox(width: 8),
                         Text(
                           'I Know This',
                           style: TextStyle(
-                            color: Color(0xFF10B981),
+                            color: AppColors.greenDark,
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -548,16 +531,8 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
+      decoration: AppDecorations.card().copyWith(
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Stack(
         children: [
@@ -573,8 +548,8 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     : Icons.star_outline_rounded,
                 size: 26,
                 color: isStarred
-                    ? const Color(0xFFF59E0B)
-                    : Colors.grey[400],
+                    ? AppColors.coralMid
+                    : AppColors.light,
               ),
             ),
           ),
@@ -591,7 +566,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF9CA3AF),
+                      color: AppColors.light,
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -602,7 +577,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
+                      color: AppColors.ink,
                       height: 1.4,
                     ),
                   ),
@@ -611,7 +586,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     'Tap to reveal',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFFBCC0CC),
+                      color: AppColors.light,
                     ),
                   ),
                 ],
@@ -632,22 +607,9 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0x663B82F6),
-            Color(0x558B5CF6),
-          ],
-        ),
+        color: AppColors.blue,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        boxShadow: AppDecorations.shadowMd,
       ),
       child: Stack(
         children: [
@@ -663,8 +625,8 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     : Icons.star_outline_rounded,
                 size: 26,
                 color: isStarred
-                    ? const Color(0xFFF59E0B)
-                    : Colors.grey[400],
+                    ? AppColors.coralMid
+                    : AppColors.light,
               ),
             ),
           ),
@@ -681,7 +643,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF9CA3AF),
+                      color: AppColors.mid,
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -692,7 +654,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF111827),
+                      color: AppColors.ink,
                       height: 1.4,
                     ),
                   ),
@@ -701,7 +663,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
                     'Tap to show word',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFFBCC0CC),
+                      color: AppColors.mid,
                     ),
                   ),
                 ],

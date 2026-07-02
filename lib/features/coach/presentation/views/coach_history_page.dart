@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -50,61 +52,75 @@ class _CoachHistoryPageState extends State<CoachHistoryPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<CoachHistoryViewModel>.value(
       value: _viewModel,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF0F2FA),
-        appBar: const WordunoAppBar(title: 'AI History', showBack: false),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            context.read<AppNavigationNotifier>().startCoachFromHistory();
-          },
-          backgroundColor: const Color(0xFF8B5CF6),
-          icon: const Icon(Icons.play_arrow_rounded),
-          label: const Text(
-            'Start Coach',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ),
-        body: Consumer<CoachHistoryViewModel>(
-          builder: (context, vm, _) {
-            if (vm.isLoading) {
-              return const AppLoading(message: 'Loading history...');
-            }
-            if (vm.errorMessage != null) {
-              return AppErrorView(
-                message: vm.errorMessage!,
-                onRetry: vm.loadTerms,
-              );
-            }
-            if (vm.terms.isEmpty) {
-              return _EmptyHistory(
-                onStart: () {
-                  context.read<AppNavigationNotifier>().startCoachFromHistory();
-                },
-              );
-            }
-            return RefreshIndicator(
-              onRefresh: vm.loadTerms,
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 88),
-                itemCount: vm.terms.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final term = vm.terms[index];
-                  return _TermCard(
-                    term: term,
-                    onTap: () {
-                      context.read<AppNavigationNotifier>().openCoachTermDetail(
-                            unitId: term.unitId,
-                            termId: term.termId,
-                          );
+      child: Consumer<CoachHistoryViewModel>(
+        builder: (context, vm, _) {
+          final showFab = !vm.isLoading &&
+              vm.errorMessage == null &&
+              vm.terms.isNotEmpty;
+
+          return Scaffold(
+            backgroundColor: AppColors.bg,
+            appBar: const WordunoAppBar(title: 'AI History', showBack: false),
+            floatingActionButton: showFab
+                ? FloatingActionButton.extended(
+                    onPressed: () {
+                      context
+                          .read<AppNavigationNotifier>()
+                          .startCoachFromHistory();
                     },
-                    onDelete: () => _confirmDeleteTerm(context, vm, term),
+                    backgroundColor: AppColors.coralDark,
+                    foregroundColor: AppColors.white,
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: const Text(
+                      'Start Coach',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  )
+                : null,
+            body: _buildBody(context, vm),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, CoachHistoryViewModel vm) {
+    if (vm.isLoading) {
+      return const AppLoading(message: 'Loading history...');
+    }
+    if (vm.errorMessage != null) {
+      return AppErrorView(
+        message: vm.errorMessage!,
+        onRetry: vm.loadTerms,
+      );
+    }
+    if (vm.terms.isEmpty) {
+      return _EmptyHistory(
+        onStart: () {
+          context.read<AppNavigationNotifier>().startCoachFromHistory();
+        },
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: vm.loadTerms,
+      color: AppColors.greenDark,
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 88),
+        itemCount: vm.terms.length,
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          final term = vm.terms[index];
+          return _TermCard(
+            term: term,
+            onTap: () {
+              context.read<AppNavigationNotifier>().openCoachTermDetail(
+                    unitId: term.unitId,
+                    termId: term.termId,
                   );
-                },
-              ),
-            );
-          },
-        ),
+            },
+            onDelete: () => _confirmDeleteTerm(context, vm, term),
+          );
+        },
       ),
     );
   }
@@ -129,7 +145,7 @@ class _CoachHistoryPageState extends State<CoachHistoryPage> {
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.error,
             ),
             child: const Text('Delete'),
           ),
@@ -159,13 +175,13 @@ class _EmptyHistory extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: const Color(0xFFEDE9FE),
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.beigeLight,
+                borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
               ),
               child: const Icon(
                 Icons.smart_toy_outlined,
                 size: 36,
-                color: Color(0xFF8B5CF6),
+                color: AppColors.greenMid,
               ),
             ),
             const SizedBox(height: 20),
@@ -174,7 +190,7 @@ class _EmptyHistory extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
+                color: AppColors.ink,
               ),
             ),
             const SizedBox(height: 8),
@@ -183,7 +199,7 @@ class _EmptyHistory extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
                 height: 1.45,
               ),
             ),
@@ -199,9 +215,11 @@ class _EmptyHistory extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF8B5CF6),
+                  backgroundColor: AppColors.coralDark,
+                  foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(AppDecorations.radiusSm),
                   ),
                 ),
               ),
@@ -227,10 +245,10 @@ class _TermCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      color: AppColors.white,
+      borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -245,7 +263,7 @@ class _TermCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
+                        color: AppColors.ink,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -254,7 +272,7 @@ class _TermCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF8B5CF6),
+                        color: AppColors.greenMid,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -264,7 +282,7 @@ class _TermCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF6B7280),
+                        color: AppColors.mid,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -272,7 +290,7 @@ class _TermCard extends StatelessWidget {
                       '${CoachHistoryViewModel.formatDateTime(term.lastCoachedAt)} · ${term.feedbackCount} feedback',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF9CA3AF),
+                        color: AppColors.light,
                       ),
                     ),
                   ],
@@ -280,11 +298,11 @@ class _TermCard extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, size: 20),
-                color: const Color(0xFF9CA3AF),
+                color: AppColors.light,
                 onPressed: onDelete,
                 tooltip: 'Delete all feedback',
               ),
-              const Icon(Icons.chevron_right, color: Color(0xFF9CA3AF)),
+              const Icon(Icons.chevron_right, color: AppColors.light),
             ],
           ),
         ),

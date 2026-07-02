@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -141,7 +143,7 @@ class _TermListViewState extends State<_TermListView> {
     final vm = context.watch<TermListViewModel>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F2FA),
+      backgroundColor: AppColors.bg,
       appBar: const LexiaAppBar(showBack: true),
       body: vm.isLoading
           ? const AppLoading(message: 'Loading terms...')
@@ -175,7 +177,7 @@ class _TermListViewState extends State<_TermListView> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
+                          color: AppColors.ink,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -184,7 +186,9 @@ class _TermListViewState extends State<_TermListView> {
                       Text(
                         '${displayTerms.length} of ${vm.terms.length} words',
                         style: const TextStyle(
-                            fontSize: 13, color: Color(0xFF9CA3AF)),
+                          fontSize: 13,
+                          color: AppColors.light,
+                        ),
                       ),
                     ],
                   ),
@@ -211,7 +215,7 @@ class _TermListViewState extends State<_TermListView> {
                       _ActionBtn(
                         icon: Icons.menu_book_outlined,
                         label: 'Learn',
-                        color: const Color(0xFF3B82F6),
+                        color: AppColors.greenDark,
                         onTap: () {
                           context.read<AppNavigationNotifier>().openHomeRoute(
                             HomeRoutePaths.learn,
@@ -227,7 +231,7 @@ class _TermListViewState extends State<_TermListView> {
                       _ActionBtn(
                         icon: Icons.quiz_outlined,
                         label: 'Exam',
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.coralDark,
                         onTap: () {
                           context.read<AppNavigationNotifier>().openHomeRoute(
                             HomeRoutePaths.examConfig,
@@ -243,7 +247,7 @@ class _TermListViewState extends State<_TermListView> {
                       _ActionBtn(
                         icon: Icons.smart_toy_outlined,
                         label: 'Coach',
-                        color: const Color(0xFF8B5CF6),
+                        color: AppColors.greenMid,
                         onTap: () {
                           context.read<AppNavigationNotifier>().openHomeRoute(
                             HomeRoutePaths.coachConfig,
@@ -362,8 +366,10 @@ class _TermListViewState extends State<_TermListView> {
                 displayTerms.isEmpty
                     ? const SliverFillRemaining(
                         child: Center(
-                          child: Text('No terms found.',
-                              style: TextStyle(color: Colors.grey)),
+                          child: Text(
+                            'No terms found.',
+                            style: TextStyle(color: AppColors.light),
+                          ),
                         ),
                       )
                     : SliverPadding(
@@ -396,8 +402,10 @@ class _TermListViewState extends State<_TermListView> {
                 displayTerms.isEmpty
                     ? const SliverFillRemaining(
                         child: Center(
-                          child: Text('No terms found.',
-                              style: TextStyle(color: Colors.grey)),
+                          child: Text(
+                            'No terms found.',
+                            style: TextStyle(color: AppColors.light),
+                          ),
                         ),
                       )
                     : SliverPadding(
@@ -444,29 +452,28 @@ class _SearchBarField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: 14),
+      style: const TextStyle(fontSize: 14, color: AppColors.ink),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            const TextStyle(color: Color(0xFFBCC0CC), fontSize: 14),
+        hintStyle: const TextStyle(color: AppColors.light, fontSize: 14),
         prefixIcon:
-            const Icon(Icons.search, color: Color(0xFFBCC0CC), size: 20),
+            const Icon(Icons.search, color: AppColors.light, size: 20),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.white,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           borderSide:
-              const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
+              const BorderSide(color: AppColors.greenMid, width: 1.5),
         ),
       ),
     );
@@ -499,17 +506,17 @@ class _ActionBtn extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: Colors.white, size: 22),
+              Icon(icon, color: AppColors.white, size: 22),
               const SizedBox(height: 4),
               Text(
                 label,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -538,8 +545,8 @@ class _ViewToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       ),
       child: Row(
         children: [
@@ -583,17 +590,9 @@ class _ToggleOption extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? Colors.white : Colors.transparent,
+            color: selected ? AppColors.white : Colors.transparent,
             borderRadius: BorderRadius.circular(11),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                : [],
+            boxShadow: selected ? AppDecorations.shadowSm : [],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -601,21 +600,16 @@ class _ToggleOption extends StatelessWidget {
               Icon(
                 icon,
                 size: 17,
-                color: selected
-                    ? const Color(0xFF111827)
-                    : const Color(0xFF9CA3AF),
+                color: selected ? AppColors.ink : AppColors.light,
               ),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: selected
-                      ? FontWeight.w700
-                      : FontWeight.w500,
-                  color: selected
-                      ? const Color(0xFF111827)
-                      : const Color(0xFF9CA3AF),
+                  fontWeight:
+                      selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected ? AppColors.ink : AppColors.light,
                 ),
               ),
             ],
@@ -650,12 +644,10 @@ class _FilterChip2 extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF3B82F6) : Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          color: selected ? AppColors.greenDark : AppColors.white,
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           border: Border.all(
-            color: selected
-                ? const Color(0xFF3B82F6)
-                : const Color(0xFFE5E7EB),
+            color: selected ? AppColors.greenDark : AppColors.border,
           ),
         ),
         child: Text(
@@ -663,7 +655,7 @@ class _FilterChip2 extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : const Color(0xFF6B7280),
+            color: selected ? AppColors.white : AppColors.mid,
           ),
         ),
       ),
@@ -690,11 +682,11 @@ class _TermCard extends StatelessWidget {
   final VoidCallback onKnowTapped;
   final VoidCallback onLearningTapped;
 
-  Color get _statusColor {
+  String get _statusKey {
     return switch (state.status) {
-      WordStatus.know => const Color(0xFF10B981),
-      WordStatus.learning => const Color(0xFFF59E0B),
-      WordStatus.newWord => const Color(0xFF3B82F6),
+      WordStatus.know => 'learned',
+      WordStatus.learning => 'learning',
+      WordStatus.newWord => 'new',
     };
   }
 
@@ -711,21 +703,15 @@ class _TermCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sc = _statusColor;
+    final statusPal = AppColors.wordStatus(_statusKey);
     final sl = _statusLabel;
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+        boxShadow: AppDecorations.shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,14 +731,14 @@ class _TermCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827),
+                        color: AppColors.ink,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 9, vertical: 3),
                       decoration: BoxDecoration(
-                        color: sc.withOpacity(0.12),
+                        color: statusPal.bg,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -760,7 +746,7 @@ class _TermCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: sc,
+                          color: statusPal.fg,
                         ),
                       ),
                     ),
@@ -772,8 +758,8 @@ class _TermCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.volume_up_outlined,
-                        size: 19, color: Colors.grey[400]),
+                    icon: const Icon(Icons.volume_up_outlined,
+                        size: 19, color: AppColors.light),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: () => TtsHelper.speak(term.text),
@@ -787,8 +773,8 @@ class _TermCard extends StatelessWidget {
                           : Icons.star_outline_rounded,
                       size: 20,
                       color: state.isStarred
-                          ? const Color(0xFFF59E0B)
-                          : Colors.grey[400],
+                          ? AppColors.coralMid
+                          : AppColors.light,
                     ),
                   ),
                 ],
@@ -800,7 +786,7 @@ class _TermCard extends StatelessWidget {
             term.definition,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF6B7280),
+              color: AppColors.mid,
               height: 1.45,
             ),
           ),
@@ -814,7 +800,8 @@ class _TermCard extends StatelessWidget {
                     icon: Icons.check_rounded,
                     label: 'Know',
                     filled: _isLearned,
-                    fillColor: const Color(0xFF10B981),
+                    fillColor: AppColors.greenDark,
+                    unfilledBg: AppColors.green,
                   ),
                 ),
               ),
@@ -826,7 +813,8 @@ class _TermCard extends StatelessWidget {
                     icon: Icons.refresh_rounded,
                     label: 'Learning',
                     filled: _isLearning,
-                    fillColor: const Color(0xFFF59E0B),
+                    fillColor: AppColors.coralMid,
+                    unfilledBg: AppColors.beigeLight,
                   ),
                 ),
               ),
@@ -844,34 +832,37 @@ class _TermBtn extends StatelessWidget {
     required this.label,
     required this.filled,
     required this.fillColor,
+    this.unfilledBg,
   });
 
   final IconData icon;
   final String label;
   final bool filled;
   final Color fillColor;
+  final Color? unfilledBg;
 
   @override
   Widget build(BuildContext context) {
+    final bg = filled ? fillColor : (unfilledBg ?? fillColor.withValues(alpha: 0.1));
+    final fg = filled ? AppColors.white : fillColor;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: filled ? fillColor : fillColor.withOpacity(0.10),
-        borderRadius: BorderRadius.circular(30),
+        color: bg,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon,
-              size: 15,
-              color: filled ? Colors.white : fillColor),
+          Icon(icon, size: 15, color: fg),
           const SizedBox(width: 5),
           Text(
             label,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: filled ? Colors.white : fillColor,
+              color: fg,
             ),
           ),
         ],
@@ -907,11 +898,11 @@ class _FlashcardListItem extends StatefulWidget {
 class _FlashcardListItemState extends State<_FlashcardListItem> {
   bool _isFlipped = false;
 
-  Color get _statusColor {
+  String get _statusKey {
     return switch (widget.state.status) {
-      WordStatus.know => const Color(0xFF10B981),
-      WordStatus.learning => const Color(0xFFF59E0B),
-      WordStatus.newWord => const Color(0xFF3B82F6),
+      WordStatus.know => 'learned',
+      WordStatus.learning => 'learning',
+      WordStatus.newWord => 'new',
     };
   }
 
@@ -930,7 +921,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final sc = _statusColor;
+    final statusPal = AppColors.wordStatus(_statusKey);
     final sl = _statusLabel;
 
     return Padding(
@@ -963,7 +954,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                             transform: Matrix4.identity()..rotateY(math.pi),
                             child: _buildCardBack(),
                           )
-                        : _buildCardFront(sc, sl),
+                        : _buildCardFront(statusPal, sl),
                   );
                 },
               ),
@@ -973,15 +964,9 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+              boxShadow: AppDecorations.shadowSm,
             ),
             child: Row(
               children: [
@@ -991,13 +976,13 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     width: 38,
                     height: 38,
                     decoration: const BoxDecoration(
-                      color: Color(0xFFEFF6FF),
+                      color: AppColors.blue,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.volume_up_outlined,
                       size: 18,
-                      color: Color(0xFF3B82F6),
+                      color: AppColors.greenMid,
                     ),
                   ),
                 ),
@@ -1009,7 +994,8 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                       icon: Icons.check_rounded,
                       label: 'Know',
                       filled: _isLearned,
-                      fillColor: const Color(0xFF10B981),
+                      fillColor: AppColors.greenDark,
+                      unfilledBg: AppColors.green,
                     ),
                   ),
                 ),
@@ -1021,7 +1007,8 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                       icon: Icons.refresh_rounded,
                       label: 'Learning',
                       filled: _isLearning,
-                      fillColor: const Color(0xFFF59E0B),
+                      fillColor: AppColors.coralMid,
+                      unfilledBg: AppColors.beigeLight,
                     ),
                   ),
                 ),
@@ -1033,20 +1020,14 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
     );
   }
 
-  Widget _buildCardFront(Color statusColor, String statusLabel) {
+  Widget _buildCardFront(WordStatusPalette statusPal, String statusLabel) {
     return Container(
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+        boxShadow: AppDecorations.shadowSm,
       ),
       child: Stack(
         children: [
@@ -1061,8 +1042,8 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     : Icons.star_outline_rounded,
                 size: 22,
                 color: widget.state.isStarred
-                    ? const Color(0xFFF59E0B)
-                    : Colors.grey[400],
+                    ? AppColors.coralMid
+                    : AppColors.light,
               ),
             ),
           ),
@@ -1076,7 +1057,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
+                      color: statusPal.bg,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -1084,7 +1065,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: statusColor,
+                        color: statusPal.fg,
                       ),
                     ),
                   ),
@@ -1095,7 +1076,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
+                      color: AppColors.ink,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -1103,7 +1084,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     'Tap card to flip',
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFFBCC0CC),
+                      color: AppColors.light,
                     ),
                   ),
                 ],
@@ -1120,22 +1101,9 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0x663B82F6),
-            Color(0x558B5CF6),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.blue,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+        boxShadow: AppDecorations.shadowSm,
       ),
       child: Stack(
         children: [
@@ -1150,8 +1118,8 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     : Icons.star_outline_rounded,
                 size: 22,
                 color: widget.state.isStarred
-                    ? const Color(0xFFF59E0B)
-                    : Colors.grey[400],
+                    ? AppColors.coralMid
+                    : AppColors.light,
               ),
             ),
           ),
@@ -1166,7 +1134,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF6B7280),
+                      color: AppColors.mid,
                       letterSpacing: 2,
                     ),
                   ),
@@ -1177,7 +1145,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: Color(0xFF111827),
+                      color: AppColors.ink,
                       height: 1.5,
                     ),
                   ),
