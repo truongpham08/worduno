@@ -7,7 +7,7 @@ import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
-import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/tts/presentation/speak_term.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
 import '../viewmodels/learn_session_view_model.dart';
 
@@ -425,7 +425,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
 
         // ── Audio speaker control ──────────────────────────────────
         _ScaleButton(
-          onTap: () => TtsHelper.speak(currentTerm.text),
+          onTap: () => speakTermWithFeedback(context, currentTerm.text),
           child: Container(
             width: 52,
             height: 52,

@@ -37,7 +37,7 @@ Each feature follows four layers:
 - **HTTP:** `dio`
 - **Local DB:** `sqflite`
 - **Navigation:** Flutter **Navigator 2.0** (`RouterDelegate` + `RouteInformationParser`)
-- **TTS:** `flutter_tts` (wire up in Learning/Home later)
+- **TTS:** `flutter_tts` via `ITtsService` (`core/tts/`) — term pronunciation on Term List, Learn, and Coach
 
 ## Backend
 

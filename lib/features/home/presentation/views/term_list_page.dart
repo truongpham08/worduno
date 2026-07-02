@@ -10,7 +10,7 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../core/utils/sort_utils.dart';
-import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/tts/presentation/speak_term.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
 import '../../../../shared/word_state/domain/entities/user_word_state.dart';
 import '../../../../shared/word_state/domain/entities/word_status.dart';
@@ -762,7 +762,7 @@ class _TermCard extends StatelessWidget {
                         size: 19, color: AppColors.light),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: () => TtsHelper.speak(term.text),
+                    onPressed: () => speakTermWithFeedback(context, term.text),
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
@@ -971,7 +971,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () => TtsHelper.speak(widget.term.text),
+                  onTap: () => speakTermWithFeedback(context, widget.term.text),
                   child: Container(
                     width: 38,
                     height: 38,

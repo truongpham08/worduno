@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
-import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/tts/presentation/speak_term.dart';
 import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -331,7 +331,9 @@ class _WordCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _ListenButton(onTap: () => TtsHelper.speak(word.term.text)),
+              _ListenButton(
+                onTap: () => speakTermWithFeedback(context, word.term.text),
+              ),
             ],
           ),
           if (showDefinition) ...[
