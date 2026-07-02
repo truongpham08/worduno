@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../features/coach/presentation/views/coach_pages.dart';
+import '../../features/dashboard/presentation/viewmodels/dashboard_view_model.dart';
 import '../../features/dashboard/presentation/views/dashboard_page.dart';
 import '../../features/exam/presentation/views/exam_pages.dart';
 import '../../features/home/presentation/viewmodels/level_list_view_model.dart';
@@ -78,7 +79,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
   Widget _buildTabNavigator(AppRoutePath configuration) {
     return switch (configuration.tab) {
       AppTab.home => _buildHomeNavigator(configuration.homeStack),
-      AppTab.dashboard => const DashboardPage(),
+      AppTab.dashboard => ChangeNotifierProvider(
+          create: (_) => DashboardViewModel(),
+          child: const DashboardPage(),
+        ),
       AppTab.examHistory => _buildExamHistoryNavigator(configuration),
       AppTab.coachHistory => _buildCoachHistoryNavigator(configuration),
     };
