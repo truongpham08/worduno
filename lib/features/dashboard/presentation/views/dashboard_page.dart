@@ -6,7 +6,7 @@ import '../../../../app/routes/route_paths.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../viewmodels/dashboard_view_model.dart';
-import '../../application/models/dashboard_data.dart';
+import '../../domain/entities/dashboard_data.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -213,9 +213,9 @@ class _DashboardPageState extends State<DashboardPage> {
               title: 'Recent Exams',
               icon: Icons.history_rounded,
               trailing: _ViewAllButton(
-                onTap: () => context
-                    .read<AppNavigationNotifier>()
-                    .selectTab(AppTab.examHistory),
+                onTap: () => context.read<AppNavigationNotifier>().selectTab(
+                  AppTab.examHistory,
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -237,9 +237,9 @@ class _DashboardPageState extends State<DashboardPage> {
               title: 'Recent AI Coach',
               icon: Icons.smart_toy_outlined,
               trailing: _ViewAllButton(
-                onTap: () => context
-                    .read<AppNavigationNotifier>()
-                    .selectTab(AppTab.coachHistory),
+                onTap: () => context.read<AppNavigationNotifier>().selectTab(
+                  AppTab.coachHistory,
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -262,9 +262,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Custom Widgets & Sub-views
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
@@ -292,7 +292,7 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        if (trailing != null) trailing!,
+        ?trailing,
       ],
     );
   }
@@ -358,9 +358,9 @@ class _EmptyStateView extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Overall Progress Card (circular canvas)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _OverallProgressCard extends StatelessWidget {
   const _OverallProgressCard({
@@ -384,7 +384,7 @@ class _OverallProgressCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -474,10 +474,7 @@ class _OverallProgressCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 const Text(
                   'words learned across all levels',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF6B7280),
-                  ),
+                  style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
                 ),
               ],
             ),
@@ -537,9 +534,9 @@ class CircularProgressPainter extends CustomPainter {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Mini Statistics Cards (Row: Learned, Learning, Starred)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _MiniStatCard extends StatelessWidget {
   const _MiniStatCard({
@@ -567,7 +564,7 @@ class _MiniStatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -577,10 +574,7 @@ class _MiniStatCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: iconBg,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
             child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(height: 8),
@@ -606,9 +600,9 @@ class _MiniStatCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Exam Stat Cards (Exam Count, Average Score)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _ExamStatCard extends StatelessWidget {
   const _ExamStatCard({
@@ -666,9 +660,9 @@ class _ExamStatCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Level Progress Row Cards
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _LevelProgressRowCard extends StatelessWidget {
   const _LevelProgressRowCard({required this.level});
@@ -694,7 +688,7 @@ class _LevelProgressRowCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -758,9 +752,9 @@ class _LevelProgressRowCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Strongest / Weakest Columns Grid
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _StrengthWeaknessCol extends StatelessWidget {
   const _StrengthWeaknessCol({
@@ -784,7 +778,7 @@ class _StrengthWeaknessCol extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -887,9 +881,9 @@ class _UnitMiniBadge extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Recent Exam Card
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _RecentExamCard extends StatelessWidget {
   const _RecentExamCard({required this.exam});
@@ -921,7 +915,7 @@ class _RecentExamCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -933,10 +927,7 @@ class _RecentExamCard extends StatelessWidget {
           Container(
             width: 42,
             height: 42,
-            decoration: BoxDecoration(
-              color: circleBg,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: circleBg, shape: BoxShape.circle),
             alignment: Alignment.center,
             child: Text(
               '$scorePct%',
@@ -966,7 +957,7 @@ class _RecentExamCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${exam.dateLabel} · ${exam.questionCount} questions',
+                  '${exam.dateLabel} - ${exam.questionCount} questions',
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF9CA3AF),
@@ -981,9 +972,9 @@ class _RecentExamCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Recent AI Coach Card
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _RecentCoachCard extends StatelessWidget {
   const _RecentCoachCard({required this.coach});
@@ -1000,7 +991,7 @@ class _RecentCoachCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1027,7 +1018,9 @@ class _RecentCoachCard extends StatelessWidget {
                   return Icon(
                     Icons.star_rounded,
                     size: 13.5,
-                    color: filled ? const Color(0xFFF59E0B) : const Color(0xFFE5E7EB),
+                    color: filled
+                        ? const Color(0xFFF59E0B)
+                        : const Color(0xFFE5E7EB),
                   );
                 }),
               ),
@@ -1044,7 +1037,7 @@ class _RecentCoachCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '“${coach.sentence}”',
+            '"${coach.sentence}"',
             style: const TextStyle(
               fontSize: 12,
               fontStyle: FontStyle.italic,

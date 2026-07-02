@@ -9,6 +9,10 @@ import '../../features/coach/data/datasources/coach_ai_data_source_impl.dart';
 import '../../features/coach/data/datasources/i_coach_ai_data_source.dart';
 import '../../features/dashboard/application/services/dashboard_service_impl.dart';
 import '../../features/dashboard/application/services/i_dashboard_service.dart';
+import '../../features/dashboard/data/datasources/dashboard_local_data_source_impl.dart';
+import '../../features/dashboard/data/datasources/i_dashboard_local_data_source.dart';
+import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import '../../features/dashboard/domain/repositories/i_dashboard_repository.dart';
 import '../../features/exam/application/services/exam_service_impl.dart';
 import '../../features/exam/application/services/i_exam_service.dart';
 import '../../features/exam/data/datasources/exam_ai_data_source_impl.dart';
@@ -79,19 +83,22 @@ Future<void> setupDependencies() async {
     ),
   );
   getIt.registerLazySingleton<ILearnService>(
-    () => LearnServiceImpl(
-      getIt<ILearnRepository>(),
-      getIt<WordStateStore>(),
-    ),
+    () => LearnServiceImpl(getIt<ILearnRepository>(), getIt<WordStateStore>()),
   );
   getIt.registerLazySingleton<IExamService>(ExamServiceImpl.new);
   getIt.registerLazySingleton<ICoachService>(CoachServiceImpl.new);
-  getIt.registerLazySingleton<IDashboardService>(
-    () => DashboardServiceImpl(
+  getIt.registerLazySingleton<IDashboardLocalDataSource>(
+    () => DashboardLocalDataSourceImpl(getIt<AppDatabase>()),
+  );
+  getIt.registerLazySingleton<IDashboardRepository>(
+    () => DashboardRepositoryImpl(
       getIt<IVocabularyService>(),
       getIt<IWordStateService>(),
-      getIt<AppDatabase>(),
+      getIt<IDashboardLocalDataSource>(),
     ),
+  );
+  getIt.registerLazySingleton<IDashboardService>(
+    () => DashboardServiceImpl(getIt<IDashboardRepository>()),
   );
 
   getIt.registerLazySingleton<IExamAiDataSource>(ExamAiDataSourceImpl.new);
