@@ -6,7 +6,11 @@ import '../../core/network/dio_client.dart';
 import '../../features/coach/application/services/coach_service_impl.dart';
 import '../../features/coach/application/services/i_coach_service.dart';
 import '../../features/coach/data/datasources/coach_ai_data_source_impl.dart';
+import '../../features/coach/data/datasources/coach_history_local_data_source_impl.dart';
 import '../../features/coach/data/datasources/i_coach_ai_data_source.dart';
+import '../../features/coach/data/datasources/i_coach_history_local_data_source.dart';
+import '../../features/coach/data/repositories/coach_repository_impl.dart';
+import '../../features/coach/domain/repositories/i_coach_repository.dart';
 import '../../features/dashboard/application/services/dashboard_service_impl.dart';
 import '../../features/dashboard/application/services/i_dashboard_service.dart';
 import '../../features/dashboard/data/datasources/dashboard_local_data_source_impl.dart';
@@ -86,21 +90,24 @@ Future<void> setupDependencies() async {
     () => LearnServiceImpl(getIt<ILearnRepository>(), getIt<WordStateStore>()),
   );
   getIt.registerLazySingleton<IExamService>(ExamServiceImpl.new);
-  getIt.registerLazySingleton<ICoachService>(CoachServiceImpl.new);
-  getIt.registerLazySingleton<IDashboardLocalDataSource>(
-    () => DashboardLocalDataSourceImpl(getIt<AppDatabase>()),
-  );
-  getIt.registerLazySingleton<IDashboardRepository>(
-    () => DashboardRepositoryImpl(
-      getIt<IVocabularyService>(),
-      getIt<IWordStateService>(),
-      getIt<IDashboardLocalDataSource>(),
-    ),
-  );
-  getIt.registerLazySingleton<IDashboardService>(
-    () => DashboardServiceImpl(getIt<IDashboardRepository>()),
-  );
+  getIt.registerLazySingleton<IDashboardService>(DashboardServiceImpl.new);
 
   getIt.registerLazySingleton<IExamAiDataSource>(ExamAiDataSourceImpl.new);
-  getIt.registerLazySingleton<ICoachAiDataSource>(CoachAiDataSourceImpl.new);
+  getIt.registerLazySingleton<ICoachAiDataSource>(
+    () => CoachAiDataSourceImpl(getIt<Dio>()),
+  );
+  getIt.registerLazySingleton<ICoachHistoryLocalDataSource>(
+    () => CoachHistoryLocalDataSourceImpl(getIt<AppDatabase>()),
+  );
+  getIt.registerLazySingleton<ICoachRepository>(
+    () => CoachRepositoryImpl(
+      getIt<IVocabularyService>(),
+      getIt<WordStateStore>(),
+      getIt<ICoachAiDataSource>(),
+      getIt<ICoachHistoryLocalDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<ICoachService>(
+    () => CoachServiceImpl(getIt<ICoachRepository>()),
+  );
 }

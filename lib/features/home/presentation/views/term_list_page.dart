@@ -6,6 +6,7 @@ import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../core/utils/sort_utils.dart';
 import '../../../../core/utils/tts_helper.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
@@ -141,25 +142,7 @@ class _TermListViewState extends State<_TermListView> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F2FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              size: 19, color: Color(0xFF111827)),
-          onPressed: () =>
-              context.read<AppNavigationNotifier>().popHomeRoute(),
-        ),
-        title: const Text(
-          'Lexia',
-          style: TextStyle(
-            color: Color(0xFF3B82F6),
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
-          ),
-        ),
-      ),
+      appBar: const LexiaAppBar(showBack: true),
       body: vm.isLoading
           ? const AppLoading(message: 'Loading terms...')
           : vm.errorMessage != null
