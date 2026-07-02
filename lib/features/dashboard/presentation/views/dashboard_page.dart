@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../viewmodels/dashboard_view_model.dart';
@@ -29,17 +31,19 @@ class _DashboardPageState extends State<DashboardPage> {
     final viewModel = context.watch<DashboardViewModel>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F2FA),
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.greenDark,
+        foregroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text(
           'Lexia',
           style: TextStyle(
-            color: Color(0xFF3B82F6),
+            color: AppColors.white,
             fontWeight: FontWeight.w800,
-            fontSize: 20,
+            fontSize: 16,
             letterSpacing: 0.5,
           ),
         ),
@@ -81,13 +85,13 @@ class _DashboardPageState extends State<DashboardPage> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(width: 6),
                 const Icon(
                   Icons.bar_chart_rounded,
-                  color: Color(0xFF3B82F6),
+                  color: AppColors.greenDark,
                   size: 24,
                 ),
               ],
@@ -108,33 +112,30 @@ class _DashboardPageState extends State<DashboardPage> {
                 Expanded(
                   child: _MiniStatCard(
                     icon: Icons.check_circle_rounded,
-                    iconBg: const Color(0xFFD1FAE5),
-                    iconColor: const Color(0xFF10B981),
+                    cardBg: AppColors.green,
+                    iconColor: AppColors.greenDark,
                     value: '${data.learnedWordsCount}',
                     label: 'learned',
-                    textColor: const Color(0xFF10B981),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: _MiniStatCard(
                     icon: Icons.auto_stories_rounded,
-                    iconBg: const Color(0xFFFEF3C7),
-                    iconColor: const Color(0xFFF59E0B),
+                    cardBg: AppColors.beigeLight,
+                    iconColor: AppColors.coralMid,
                     value: '${data.learningWordsCount}',
                     label: 'learning',
-                    textColor: const Color(0xFFF59E0B),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: _MiniStatCard(
                     icon: Icons.star_rounded,
-                    iconBg: const Color(0xFFFEE2E2),
-                    iconColor: const Color(0xFFEF4444),
+                    cardBg: AppColors.coral,
+                    iconColor: AppColors.coralDark,
                     value: '${data.starredWordsCount}',
                     label: 'starred',
-                    textColor: const Color(0xFFEF4444),
                   ),
                 ),
               ],
@@ -147,20 +148,20 @@ class _DashboardPageState extends State<DashboardPage> {
                 Expanded(
                   child: _ExamStatCard(
                     icon: Icons.description_rounded,
-                    iconColor: const Color(0xFF3B82F6),
+                    iconColor: AppColors.greenMid,
                     value: '${data.examCount}',
                     label: 'exam count',
-                    cardBg: const Color(0xFFEEF3FE),
+                    cardBg: AppColors.blue,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _ExamStatCard(
                     icon: Icons.bookmark_added_rounded,
-                    iconColor: const Color(0xFF8B5CF6),
+                    iconColor: AppColors.greenDark,
                     value: '${(data.averageExamScore * 100).round()}%',
                     label: 'avg exam score',
-                    cardBg: const Color(0xFFEDE9FE),
+                    cardBg: AppColors.green,
                   ),
                 ),
               ],
@@ -191,7 +192,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: _StrengthWeaknessCol(
                     title: 'Strongest',
                     icon: Icons.emoji_events_outlined,
-                    iconColor: const Color(0xFF10B981),
+                    iconColor: AppColors.greenDark,
                     units: data.strongestUnits,
                   ),
                 ),
@@ -200,7 +201,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: _StrengthWeaknessCol(
                     title: 'Weakest',
                     icon: Icons.error_outline_rounded,
-                    iconColor: const Color(0xFFEF4444),
+                    iconColor: AppColors.coralDark,
                     units: data.weakestUnits,
                   ),
                 ),
@@ -281,14 +282,14 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF374151)),
+        Icon(icon, size: 18, color: AppColors.mid),
         const SizedBox(width: 6),
         Text(
           title,
           style: const TextStyle(
             fontSize: 15.5,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF111827),
+            color: AppColors.ink,
           ),
         ),
         const Spacer(),
@@ -318,14 +319,14 @@ class _ViewAllButton extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF3B82F6),
+                color: AppColors.greenDark,
               ),
             ),
             SizedBox(width: 2),
             Icon(
               Icons.chevron_right_rounded,
               size: 14,
-              color: Color(0xFF3B82F6),
+              color: AppColors.greenDark,
             ),
           ],
         ),
@@ -345,13 +346,13 @@ class _EmptyStateView extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusLg),
       ),
       child: Center(
         child: Text(
           message,
-          style: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+          style: const TextStyle(color: AppColors.light, fontSize: 13),
         ),
       ),
     );
@@ -380,15 +381,9 @@ class _OverallProgressCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: AppColors.beigeLight,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusLg),
+        boxShadow: AppDecorations.shadowSm,
       ),
       child: Row(
         children: [
@@ -400,12 +395,8 @@ class _OverallProgressCard extends StatelessWidget {
               painter: CircularProgressPainter(
                 progress: progress,
                 strokeWidth: 8,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF3B82F6), Color(0xFF60A5FA)],
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.topRight,
-                ),
-                backgroundColor: const Color(0xFFE5E7EB),
+                color: AppColors.greenDark,
+                backgroundColor: AppColors.border,
               ),
               child: Center(
                 child: Text(
@@ -413,7 +404,7 @@ class _OverallProgressCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
               ),
@@ -431,7 +422,7 @@ class _OverallProgressCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF9CA3AF),
+                    color: AppColors.light,
                     letterSpacing: 1.0,
                   ),
                 ),
@@ -445,7 +436,7 @@ class _OverallProgressCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
+                        color: AppColors.ink,
                       ),
                     ),
                     Text(
@@ -453,7 +444,7 @@ class _OverallProgressCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF9CA3AF),
+                        color: AppColors.light,
                       ),
                     ),
                   ],
@@ -465,16 +456,16 @@ class _OverallProgressCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 5,
-                    backgroundColor: const Color(0xFFF3F4F6),
+                    backgroundColor: AppColors.surface,
                     valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF3B82F6),
+                      AppColors.greenDark,
                     ),
                   ),
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'words learned across all levels',
-                  style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 11, color: AppColors.mid),
                 ),
               ],
             ),
@@ -489,13 +480,13 @@ class CircularProgressPainter extends CustomPainter {
   CircularProgressPainter({
     required this.progress,
     required this.strokeWidth,
-    required this.gradient,
+    required this.color,
     required this.backgroundColor,
   });
 
   final double progress;
   final double strokeWidth;
-  final Gradient gradient;
+  final Color color;
   final Color backgroundColor;
 
   @override
@@ -514,7 +505,7 @@ class CircularProgressPainter extends CustomPainter {
     // Foreground arc
     final rect = Rect.fromCircle(center: center, radius: radius);
     final fgPaint = Paint()
-      ..shader = gradient.createShader(rect)
+      ..color = color
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
@@ -529,7 +520,7 @@ class CircularProgressPainter extends CustomPainter {
   bool shouldRepaint(covariant CircularProgressPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.strokeWidth != strokeWidth ||
-        oldDelegate.gradient != gradient ||
+        oldDelegate.color != color ||
         oldDelegate.backgroundColor != backgroundColor;
   }
 }
@@ -541,49 +532,36 @@ class CircularProgressPainter extends CustomPainter {
 class _MiniStatCard extends StatelessWidget {
   const _MiniStatCard({
     required this.icon,
-    required this.iconBg,
+    required this.cardBg,
     required this.iconColor,
     required this.value,
     required this.label,
-    required this.textColor,
   });
 
   final IconData icon;
-  final Color iconBg;
+  final Color cardBg;
   final Color iconColor;
   final String value;
   final String label;
-  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: cardBg,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-            child: Icon(icon, color: iconColor, size: 18),
-          ),
+          Icon(icon, color: iconColor, size: 22),
           const SizedBox(height: 8),
           Text(
             value,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111827),
+              color: AppColors.ink,
             ),
           ),
           Text(
@@ -591,7 +569,7 @@ class _MiniStatCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: textColor,
+              color: iconColor,
             ),
           ),
         ],
@@ -625,7 +603,7 @@ class _ExamStatCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
         color: cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
       ),
       child: Row(
         children: [
@@ -640,15 +618,15 @@ class _ExamStatCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey[600],
+                    color: AppColors.mid,
                   ),
                 ),
               ],
@@ -669,31 +647,15 @@ class _LevelProgressRowCard extends StatelessWidget {
 
   final LevelProgressData level;
 
-  Color _getLevelColor(String code) {
-    final c = code.toLowerCase();
-    if (c.contains('b1')) return const Color(0xFF3B82F6);
-    if (c.contains('b2')) return const Color(0xFFEF4444);
-    return const Color(0xFFF59E0B); // C1&C2
-  }
-
   @override
   Widget build(BuildContext context) {
-    final barColor = _getLevelColor(level.levelCode);
+    final palette = AppColors.levelPaletteForCode(level.levelCode);
+    final barColor = palette.accent;
     final percentage = (level.progress * 100).round();
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -704,7 +666,7 @@ class _LevelProgressRowCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111827),
+                  color: AppColors.ink,
                 ),
               ),
               const SizedBox(width: 4),
@@ -713,7 +675,7 @@ class _LevelProgressRowCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF6B7280),
+                  color: AppColors.mid,
                 ),
               ),
               const Spacer(),
@@ -733,7 +695,7 @@ class _LevelProgressRowCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: level.progress,
               minHeight: 6,
-              backgroundColor: const Color(0xFFF3F4F6),
+              backgroundColor: palette.bg,
               valueColor: AlwaysStoppedAnimation<Color>(barColor),
             ),
           ),
@@ -743,7 +705,7 @@ class _LevelProgressRowCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF9CA3AF),
+              color: AppColors.light,
             ),
           ),
         ],
@@ -773,17 +735,7 @@ class _StrengthWeaknessCol extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -796,7 +748,7 @@ class _StrengthWeaknessCol extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827),
+                  color: AppColors.ink,
                 ),
               ),
             ],
@@ -805,7 +757,7 @@ class _StrengthWeaknessCol extends StatelessWidget {
           if (units.isEmpty)
             const Text(
               'No data yet',
-              style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+              style: TextStyle(fontSize: 11, color: AppColors.light),
             )
           else
             Column(
@@ -826,7 +778,7 @@ class _StrengthWeaknessCol extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF374151),
+                                color: AppColors.mid,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -837,18 +789,20 @@ class _StrengthWeaknessCol extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
+                              color: AppColors.ink,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 6),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius: BorderRadius.circular(
+                          AppDecorations.radiusPill,
+                        ),
                         child: LinearProgressIndicator(
                           value: unit.progress,
                           minHeight: 4,
-                          backgroundColor: const Color(0xFFF3F4F6),
+                          backgroundColor: AppColors.surface,
                           valueColor: AlwaysStoppedAnimation<Color>(iconColor),
                         ),
                       ),
@@ -868,21 +822,10 @@ class _UnitMiniBadge extends StatelessWidget {
 
   final String unitId;
 
-  Color _getBadgeColor(String id) {
-    final val = int.tryParse(id) ?? 0;
-    const colors = [
-      Color(0xFF3B82F6),
-      Color(0xFFF59E0B),
-      Color(0xFFEF4444),
-      Color(0xFF8B5CF6),
-      Color(0xFF10B981),
-    ];
-    return colors[val % colors.length];
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _getBadgeColor(unitId);
+    final val = int.tryParse(unitId) ?? 0;
+    final color = AppColors.unitPalette(val).accent;
 
     return Container(
       width: 14,
@@ -904,51 +847,31 @@ class _RecentExamCard extends StatelessWidget {
 
   final RecentExamItem exam;
 
-  Color _getCircleColor(double score) {
-    if (score >= 0.8) return const Color(0xFF10B981); // Green
-    if (score >= 0.6) return const Color(0xFFF59E0B); // Amber
-    return const Color(0xFFEF4444); // Red
-  }
-
-  Color _getCircleBg(double score) {
-    if (score >= 0.8) return const Color(0xFFD1FAE5);
-    if (score >= 0.6) return const Color(0xFFFEF3C7);
-    return const Color(0xFFFEE2E2);
-  }
-
   @override
   Widget build(BuildContext context) {
     final scorePct = (exam.score * 100).round();
-    final circleBg = _getCircleBg(exam.score);
-    final circleFg = _getCircleColor(exam.score);
+    final scorePalette = AppColors.examScore(exam.score);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.card(),
       child: Row(
         children: [
           // Score badge circle
           Container(
             width: 42,
             height: 42,
-            decoration: BoxDecoration(color: circleBg, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: scorePalette.bg,
+              shape: BoxShape.circle,
+            ),
             alignment: Alignment.center,
             child: Text(
               '$scorePct%',
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w800,
-                color: circleFg,
+                color: scorePalette.fg,
               ),
             ),
           ),
@@ -964,7 +887,7 @@ class _RecentExamCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -974,7 +897,7 @@ class _RecentExamCard extends StatelessWidget {
                   '${exam.dateLabel} · ${exam.questionCount} questions',
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF9CA3AF),
+                    color: AppColors.light,
                   ),
                 ),
               ],
@@ -1000,17 +923,7 @@ class _RecentCoachCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: AppDecorations.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1022,7 +935,7 @@ class _RecentCoachCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
               ),
@@ -1031,7 +944,7 @@ class _RecentCoachCard extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 10.5,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF9CA3AF),
+                  color: AppColors.light,
                 ),
               ),
             ],
@@ -1042,7 +955,7 @@ class _RecentCoachCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 12,
               fontStyle: FontStyle.italic,
-              color: Color(0xFF4B5563),
+              color: AppColors.mid,
               height: 1.3,
             ),
           ),

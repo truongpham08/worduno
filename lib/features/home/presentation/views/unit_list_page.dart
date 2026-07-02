@@ -3,21 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../shared/vocabulary/domain/entities/unit.dart';
 import '../viewmodels/unit_list_view_model.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sort options
-// ─────────────────────────────────────────────────────────────────────────────
-
 enum _SortMode { original, az, za }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Page entry point — owns ViewModel lifecycle
-// ─────────────────────────────────────────────────────────────────────────────
 
 class UnitListPage extends StatefulWidget {
   const UnitListPage({super.key, required this.levelCode});
@@ -54,10 +48,6 @@ class _UnitListPageState extends State<UnitListPage> {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// View (stateful for search + sort local state)
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _UnitListView extends StatefulWidget {
   const _UnitListView();
@@ -96,7 +86,6 @@ class _UnitListViewState extends State<_UnitListView> {
   }
 
   List<_IndexedUnit> _processUnits(List<Unit> units) {
-    // Build indexed list first (Unit 1, Unit 2...)
     final indexed = units
         .asMap()
         .entries
@@ -123,18 +112,16 @@ class _UnitListViewState extends State<_UnitListView> {
     final totalTerms = vm.units.fold(0, (s, u) => s + u.totalTerms);
     final processedUnits = _processUnits(vm.units);
 
-    // Overall progress
     final overallProgress = vm.units.isEmpty
         ? 0.0
         : vm.units.fold(0, (s, u) => s + u.knownTerms) /
             (vm.units.fold(0, (s, u) => s + u.totalTerms).clamp(1, 999999));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F2FA),
+      backgroundColor: AppColors.bg,
       appBar: const LexiaAppBar(showBack: true),
       body: CustomScrollView(
         slivers: [
-          // ── Page header ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -148,25 +135,27 @@ class _UnitListViewState extends State<_UnitListView> {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
+                      color: AppColors.ink,
                     ),
                   ),
                   const SizedBox(height: 3),
                   Text(
                     '${vm.units.length} units · $totalTerms words',
                     style: const TextStyle(
-                        fontSize: 13, color: Color(0xFF9CA3AF)),
+                      fontSize: 13,
+                      color: AppColors.light,
+                    ),
                   ),
                   const SizedBox(height: 14),
-                  // Full blue progress bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: LinearProgressIndicator(
                       value: overallProgress,
                       minHeight: 7,
-                      backgroundColor: const Color(0xFFE5E7EB),
+                      backgroundColor: AppColors.border,
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF3B82F6)),
+                        AppColors.greenMid,
+                      ),
                     ),
                   ),
                 ],
@@ -174,7 +163,6 @@ class _UnitListViewState extends State<_UnitListView> {
             ),
           ),
 
-          // ── Search ──────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -185,7 +173,6 @@ class _UnitListViewState extends State<_UnitListView> {
             ),
           ),
 
-          // ── Sort chips ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -197,7 +184,7 @@ class _UnitListViewState extends State<_UnitListView> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF374151),
+                      color: AppColors.ink,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -230,7 +217,6 @@ class _UnitListViewState extends State<_UnitListView> {
             ),
           ),
 
-          // ── Content ──────────────────────────────────────────────────
           if (vm.isLoading)
             const SliverFillRemaining(
               child: AppLoading(message: 'Loading units...'),
@@ -245,8 +231,10 @@ class _UnitListViewState extends State<_UnitListView> {
           else if (processedUnits.isEmpty)
             const SliverFillRemaining(
               child: Center(
-                child: Text('No units found.',
-                    style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  'No units found.',
+                  style: TextStyle(color: AppColors.light),
+                ),
               ),
             )
           else
@@ -286,19 +274,11 @@ class _UnitListViewState extends State<_UnitListView> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _IndexedUnit {
   const _IndexedUnit({required this.index, required this.unit});
   final int index;
   final Unit unit;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Search bar widget
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _SearchBarWidget extends StatelessWidget {
   const _SearchBarWidget(
@@ -311,38 +291,33 @@ class _SearchBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: const TextStyle(fontSize: 14),
+      style: const TextStyle(fontSize: 14, color: AppColors.ink),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            const TextStyle(color: Color(0xFFBCC0CC), fontSize: 14),
+        hintStyle: const TextStyle(color: AppColors.light, fontSize: 14),
         prefixIcon:
-            const Icon(Icons.search, color: Color(0xFFBCC0CC), size: 20),
+            const Icon(Icons.search, color: AppColors.light, size: 20),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.white,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           borderSide:
-              const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
+              const BorderSide(color: AppColors.greenMid, width: 1.5),
         ),
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Sort chip
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _SortChip extends StatelessWidget {
   const _SortChip({
@@ -364,12 +339,10 @@ class _SortChip extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF3B82F6) : Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          color: selected ? AppColors.greenDark : AppColors.white,
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
           border: Border.all(
-            color: selected
-                ? const Color(0xFF3B82F6)
-                : const Color(0xFFE5E7EB),
+            color: selected ? AppColors.greenDark : AppColors.border,
           ),
         ),
         child: Text(
@@ -377,17 +350,13 @@ class _SortChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : const Color(0xFF6B7280),
+            color: selected ? AppColors.white : AppColors.mid,
           ),
         ),
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Unit card
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _UnitCard extends StatelessWidget {
   const _UnitCard({
@@ -399,39 +368,6 @@ class _UnitCard extends StatelessWidget {
   final Unit unit;
   final int displayIndex;
   final VoidCallback onTap;
-
-  static const _palettes = [
-    _UnitPalette(
-        iconBg: Color(0xFFDBEAFE),
-        iconColor: Color(0xFF3B82F6),
-        progress: Color(0xFF3B82F6),
-        pct: Color(0xFF3B82F6)),
-    _UnitPalette(
-        iconBg: Color(0xFFFEE2E2),
-        iconColor: Color(0xFFEF4444),
-        progress: Color(0xFFEF4444),
-        pct: Color(0xFFEF4444)),
-    _UnitPalette(
-        iconBg: Color(0xFFFEF3C7),
-        iconColor: Color(0xFFF59E0B),
-        progress: Color(0xFFF59E0B),
-        pct: Color(0xFFF59E0B)),
-    _UnitPalette(
-        iconBg: Color(0xFFD1FAE5),
-        iconColor: Color(0xFF10B981),
-        progress: Color(0xFF10B981),
-        pct: Color(0xFF10B981)),
-    _UnitPalette(
-        iconBg: Color(0xFFEDE9FE),
-        iconColor: Color(0xFF8B5CF6),
-        progress: Color(0xFF8B5CF6),
-        pct: Color(0xFF8B5CF6)),
-    _UnitPalette(
-        iconBg: Color(0xFFDBEAFE),
-        iconColor: Color(0xFF60A5FA),
-        progress: Color(0xFF60A5FA),
-        pct: Color(0xFF60A5FA)),
-  ];
 
   static const _icons = [
     Icons.flight_takeoff_outlined,
@@ -448,7 +384,7 @@ class _UnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pal = _palettes[displayIndex % _palettes.length];
+    final pal = AppColors.unitPalette(displayIndex);
     final icon = _icons[displayIndex % _icons.length];
     final pct = (unit.progress * 100).round();
 
@@ -457,33 +393,26 @@ class _UnitCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(AppDecorations.radiusMd),
+          boxShadow: AppDecorations.shadowSm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                // Icon badge
                 Container(
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: pal.iconBg,
-                    borderRadius: BorderRadius.circular(12),
+                    color: pal.bg,
+                    borderRadius:
+                        BorderRadius.circular(AppDecorations.radiusSm),
                   ),
-                  child: Icon(icon, color: pal.iconColor, size: 22),
+                  child: Icon(icon, color: pal.accent, size: 22),
                 ),
                 const SizedBox(width: 12),
-                // Title + subtitle
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,14 +422,14 @@ class _UnitCard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827),
+                          color: AppColors.ink,
                         ),
                       ),
                       Text(
                         unit.name,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF6B7280),
+                          color: AppColors.mid,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -508,48 +437,48 @@ class _UnitCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Percentage
                 Text(
                   '$pct%',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: pal.pct,
+                    color: pal.accent,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            // Progress bar
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: unit.progress,
                 minHeight: 5,
-                backgroundColor: const Color(0xFFF3F4F6),
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(pal.progress),
+                backgroundColor: AppColors.surface,
+                valueColor: AlwaysStoppedAnimation<Color>(pal.accent),
               ),
             ),
             const SizedBox(height: 10),
-            // Stats
             Row(
               children: [
-                Icon(Icons.check, size: 13, color: Colors.grey[400]),
+                const Icon(Icons.check, size: 13, color: AppColors.light),
                 const SizedBox(width: 3),
                 Text(
                   '${unit.knownTerms} learned',
                   style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF9CA3AF)),
+                    fontSize: 12,
+                    color: AppColors.light,
+                  ),
                 ),
                 const SizedBox(width: 14),
-                Icon(Icons.crop_square_outlined,
-                    size: 13, color: Colors.grey[400]),
+                const Icon(Icons.crop_square_outlined,
+                    size: 13, color: AppColors.light),
                 const SizedBox(width: 3),
                 Text(
                   '${unit.totalTerms} total',
                   style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF9CA3AF)),
+                    fontSize: 12,
+                    color: AppColors.light,
+                  ),
                 ),
               ],
             ),
@@ -558,18 +487,4 @@ class _UnitCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _UnitPalette {
-  const _UnitPalette({
-    required this.iconBg,
-    required this.iconColor,
-    required this.progress,
-    required this.pct,
-  });
-
-  final Color iconBg;
-  final Color iconColor;
-  final Color progress;
-  final Color pct;
 }

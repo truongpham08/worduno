@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../domain/entities/coach_entities.dart';
 
 class CoachExplainSection extends StatelessWidget {
@@ -12,23 +14,20 @@ class CoachExplainSection extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: AppDecorations.card(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Row(
             children: [
-              Icon(Icons.lightbulb_outline, color: Color(0xFF8B5CF6)),
+              Icon(Icons.lightbulb_outline, color: AppColors.greenMid),
               SizedBox(width: 8),
               Text(
                 'How to use this word',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827),
+                  color: AppColors.ink,
                 ),
               ),
             ],
@@ -38,7 +37,7 @@ class CoachExplainSection extends StatelessWidget {
             result.usage,
             style: const TextStyle(
               fontSize: 14,
-              color: Color(0xFF374151),
+              color: AppColors.mid,
               height: 1.5,
             ),
           ),
@@ -49,7 +48,7 @@ class CoachExplainSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
               ),
             ),
             const SizedBox(height: 8),
@@ -64,14 +63,15 @@ class CoachExplainSection extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.surface,
+                        borderRadius:
+                            BorderRadius.circular(AppDecorations.radiusPill),
                       ),
                       child: Text(
                         c,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF374151),
+                          color: AppColors.ink,
                         ),
                       ),
                     ),
@@ -86,7 +86,7 @@ class CoachExplainSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
               ),
             ),
             const SizedBox(height: 8),
@@ -97,8 +97,10 @@ class CoachExplainSection extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F3FF),
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.beigeLight,
+                    borderRadius:
+                        BorderRadius.circular(AppDecorations.radiusSm),
+                    border: Border.all(color: AppColors.green),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +110,7 @@ class CoachExplainSection extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF111827),
+                          color: AppColors.ink,
                         ),
                       ),
                       if (example.note.isNotEmpty) ...[
@@ -117,7 +119,7 @@ class CoachExplainSection extends StatelessWidget {
                           example.note,
                           style: const TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF6B7280),
+                            color: AppColors.mid,
                           ),
                         ),
                       ],

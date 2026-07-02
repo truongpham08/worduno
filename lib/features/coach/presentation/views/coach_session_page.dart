@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -55,7 +58,7 @@ class _CoachSessionPageState extends State<CoachSessionPage> {
       child: Consumer<CoachSessionViewModel>(
         builder: (context, vm, _) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF0F2FA),
+            backgroundColor: AppColors.bg,
             appBar: const WordunoAppBar(title: 'AI Coach'),
             body: SafeArea(
               child: Column(
@@ -197,10 +200,10 @@ class _SessionActionBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: AppColors.greenDark.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -4),
           ),
@@ -230,7 +233,8 @@ class _SessionActionBar extends StatelessWidget {
               icon: const Icon(Icons.flag_rounded, size: 16),
               label: const Text('End'),
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF6B7280),
+                backgroundColor: AppColors.mid,
+                foregroundColor: AppColors.white,
               ),
             ),
           ),
@@ -263,7 +267,7 @@ class _ProgressHeader extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
               ),
             ),
             Text(
@@ -271,7 +275,7 @@ class _ProgressHeader extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF8B5CF6),
+                color: AppColors.greenMid,
               ),
             ),
           ],
@@ -282,8 +286,8 @@ class _ProgressHeader extends StatelessWidget {
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 6,
-            backgroundColor: const Color(0xFFE5E7EB),
-            color: const Color(0xFF8B5CF6),
+            backgroundColor: AppColors.border,
+            color: AppColors.greenMid,
           ),
         ),
       ],
@@ -308,19 +312,9 @@ class _WordCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFEEF2FF), Color(0xFFEDE9FE)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF8B5CF6).withOpacity(0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: AppColors.beigeLight,
+        borderRadius: BorderRadius.circular(AppDecorations.radiusLg),
+        boxShadow: AppDecorations.shadowMd,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +327,7 @@ class _WordCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: AppColors.ink,
                   ),
                 ),
               ),
@@ -346,7 +340,7 @@ class _WordCard extends StatelessWidget {
               word.term.definition,
               style: const TextStyle(
                 fontSize: 15,
-                color: Color(0xFF4B5563),
+                color: AppColors.mid,
                 height: 1.4,
               ),
             ),
@@ -357,15 +351,15 @@ class _WordCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(12),
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
               ),
               child: Text(
                 '"$userSentence"',
                 style: const TextStyle(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
-                  color: Color(0xFF374151),
+                  color: AppColors.ink,
                 ),
               ),
             ),
@@ -388,10 +382,12 @@ class _ListenButton extends StatelessWidget {
       icon: const Icon(Icons.volume_up_rounded, size: 18),
       label: const Text('Listen'),
       style: TextButton.styleFrom(
-        foregroundColor: const Color(0xFF6366F1),
-        backgroundColor: Colors.white.withOpacity(0.8),
+        foregroundColor: AppColors.greenMid,
+        backgroundColor: AppColors.white,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDecorations.radiusPill),
+        ),
       ),
     );
   }
@@ -418,30 +414,20 @@ class _ExplainCard extends StatelessWidget {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+          decoration: AppDecorations.card(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Color(0xFF8B5CF6)),
+                  Icon(Icons.lightbulb_outline, color: AppColors.greenMid),
                   SizedBox(width: 8),
                   Text(
                     'How to use this word',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+                      color: AppColors.ink,
                     ),
                   ),
                 ],
@@ -451,7 +437,7 @@ class _ExplainCard extends StatelessWidget {
                 result.usage,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Color(0xFF374151),
+                  color: AppColors.mid,
                   height: 1.5,
                 ),
               ),
@@ -462,7 +448,7 @@ class _ExplainCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.mid,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -477,14 +463,16 @@ class _ExplainCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F6),
-                            borderRadius: BorderRadius.circular(20),
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              AppDecorations.radiusPill,
+                            ),
                           ),
                           child: Text(
                             c,
                             style: const TextStyle(
                               fontSize: 13,
-                              color: Color(0xFF374151),
+                              color: AppColors.ink,
                             ),
                           ),
                         ),
@@ -499,7 +487,7 @@ class _ExplainCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF6B7280),
+                    color: AppColors.mid,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -510,9 +498,11 @@ class _ExplainCard extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5F3FF),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFDDD6FE)),
+                        color: AppColors.beigeLight,
+                        borderRadius: BorderRadius.circular(
+                          AppDecorations.radiusSm,
+                        ),
+                        border: Border.all(color: AppColors.green),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +512,7 @@ class _ExplainCard extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF111827),
+                              color: AppColors.ink,
                             ),
                           ),
                           if (example.note.isNotEmpty) ...[
@@ -531,7 +521,7 @@ class _ExplainCard extends StatelessWidget {
                               example.note,
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF6B7280),
+                                color: AppColors.mid,
                               ),
                             ),
                           ],
@@ -550,9 +540,10 @@ class _ExplainCard extends StatelessWidget {
           child: FilledButton(
             onPressed: onUnderstand,
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF8B5CF6),
+              backgroundColor: AppColors.greenDark,
+              foregroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
               ),
             ),
             child: const Text(
@@ -581,13 +572,10 @@ class _ExplainErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: AppDecorations.card(),
       child: Column(
         children: [
-          Text(message, textAlign: TextAlign.center),
+          AppErrorBanner(message: message),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -601,6 +589,10 @@ class _ExplainErrorCard extends StatelessWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: onRetry,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.greenDark,
+                    foregroundColor: AppColors.white,
+                  ),
                   child: const Text('Retry'),
                 ),
               ),
@@ -610,6 +602,16 @@ class _ExplainErrorCard extends StatelessWidget {
       ),
     );
   }
+}
+
+OutlineInputBorder _writingFieldBorder({bool focused = false}) {
+  return OutlineInputBorder(
+    borderRadius: BorderRadius.circular(10),
+    borderSide: BorderSide(
+      color: focused ? AppColors.greenMid : AppColors.border,
+      width: 1.5,
+    ),
+  );
 }
 
 class _WritingSection extends StatelessWidget {
@@ -639,7 +641,7 @@ class _WritingSection extends StatelessWidget {
           style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF111827),
+            color: AppColors.ink,
           ),
         ),
         const SizedBox(height: 12),
@@ -651,19 +653,17 @@ class _WritingSection extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Type your sentence here...',
             filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide.none,
-            ),
+            fillColor: AppColors.white,
+            contentPadding: const EdgeInsets.all(14),
+            border: _writingFieldBorder(),
+            enabledBorder: _writingFieldBorder(),
+            focusedBorder: _writingFieldBorder(focused: true),
+            disabledBorder: _writingFieldBorder(),
           ),
         ),
         if (errorMessage != null) ...[
           const SizedBox(height: 10),
-          Text(
-            errorMessage!,
-            style: const TextStyle(color: Color(0xFFEF4444), fontSize: 13),
-          ),
+          AppErrorBanner(message: errorMessage!),
         ],
         const SizedBox(height: 16),
         SizedBox(
@@ -677,7 +677,7 @@ class _WritingSection extends StatelessWidget {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: AppColors.white,
                     ),
                   )
                 : const Icon(Icons.auto_awesome),
@@ -686,9 +686,10 @@ class _WritingSection extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF8B5CF6),
+              backgroundColor: AppColors.greenMid,
+              foregroundColor: AppColors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
               ),
             ),
           ),
@@ -710,34 +711,34 @@ class _FeedbackSection extends StatelessWidget {
         _FeedbackCard(
           title: 'Grammar',
           content: result.grammar,
-          color: const Color(0xFFDBEAFE),
+          color: AppColors.blue,
           icon: Icons.menu_book_outlined,
-          iconColor: const Color(0xFF2563EB),
+          iconColor: AppColors.greenDark,
         ),
         const SizedBox(height: 10),
         _FeedbackCard(
           title: 'Vocabulary',
           content: result.vocabulary,
-          color: const Color(0xFFD1FAE5),
+          color: AppColors.green,
           icon: Icons.edit_outlined,
-          iconColor: const Color(0xFF059669),
+          iconColor: AppColors.greenDark,
         ),
         const SizedBox(height: 10),
         _FeedbackCard(
           title: 'Naturalness',
           content: result.naturalness,
-          color: const Color(0xFFFEF3C7),
+          color: AppColors.beigeLight,
           icon: Icons.chat_bubble_outline,
-          iconColor: const Color(0xFFD97706),
+          iconColor: AppColors.coralMid,
         ),
         if (result.suggestions.isNotEmpty) ...[
           const SizedBox(height: 10),
           _FeedbackCard(
             title: 'Suggestion',
             content: result.suggestions.map((s) => '• $s').join('\n'),
-            color: const Color(0xFFFCE7F3),
+            color: AppColors.beige,
             icon: Icons.lightbulb_outline,
-            iconColor: const Color(0xFFDB2777),
+            iconColor: AppColors.coralDark,
           ),
         ],
       ],
@@ -767,7 +768,7 @@ class _FeedbackCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -791,7 +792,7 @@ class _FeedbackCard extends StatelessWidget {
                   content,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF374151),
+                    color: AppColors.ink,
                     height: 1.45,
                   ),
                 ),
@@ -846,13 +847,13 @@ class _CompletionViewState extends State<_CompletionView> {
               width: 88,
               height: 88,
               decoration: const BoxDecoration(
-                color: Color(0xFFEDE9FE),
+                color: AppColors.beigeLight,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.celebration_rounded,
                 size: 44,
-                color: Color(0xFF8B5CF6),
+                color: AppColors.greenMid,
               ),
             ),
             const SizedBox(height: 24),
@@ -861,7 +862,7 @@ class _CompletionViewState extends State<_CompletionView> {
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111827),
+                color: AppColors.ink,
               ),
             ),
             const SizedBox(height: 10),
@@ -870,7 +871,7 @@ class _CompletionViewState extends State<_CompletionView> {
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 15,
-                color: Color(0xFF6B7280),
+                color: AppColors.mid,
                 height: 1.45,
               ),
             ),
@@ -878,8 +879,10 @@ class _CompletionViewState extends State<_CompletionView> {
             FilledButton(
               onPressed: widget.onDone,
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF8B5CF6),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                backgroundColor: AppColors.greenDark,
+                foregroundColor: AppColors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
               child: const Text(
                 'Go to History',
