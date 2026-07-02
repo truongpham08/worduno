@@ -90,7 +90,19 @@ Future<void> setupDependencies() async {
     () => LearnServiceImpl(getIt<ILearnRepository>(), getIt<WordStateStore>()),
   );
   getIt.registerLazySingleton<IExamService>(ExamServiceImpl.new);
-  getIt.registerLazySingleton<IDashboardService>(DashboardServiceImpl.new);
+  getIt.registerLazySingleton<IDashboardLocalDataSource>(
+    () => DashboardLocalDataSourceImpl(getIt<AppDatabase>()),
+  );
+  getIt.registerLazySingleton<IDashboardRepository>(
+    () => DashboardRepositoryImpl(
+      getIt<IVocabularyService>(),
+      getIt<IWordStateService>(),
+      getIt<IDashboardLocalDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<IDashboardService>(
+    () => DashboardServiceImpl(getIt<IDashboardRepository>()),
+  );
 
   getIt.registerLazySingleton<IExamAiDataSource>(ExamAiDataSourceImpl.new);
   getIt.registerLazySingleton<ICoachAiDataSource>(

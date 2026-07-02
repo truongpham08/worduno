@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/word_state/application/services/i_word_state_service.dart';
 import '../../../../shared/word_state/domain/entities/user_word_state.dart';
@@ -184,6 +186,30 @@ class DashboardRepositoryImpl implements IDashboardRepository {
   }
 
   int _coachRating(Map<String, Object?> row) {
+    final responseJson = row['response_json'] as String?;
+    if (responseJson != null && responseJson.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(responseJson) as Map<String, dynamic>;
+        final suggestions = decoded['suggestion'];
+        final nonEmptyFeedbackCount =
+            [
+                  decoded['grammar'],
+                  decoded['vocabulary'],
+                  decoded['naturalness'],
+                  if (suggestions is List && suggestions.isNotEmpty)
+                    suggestions,
+                ]
+                .where(
+                  (value) =>
+                      value != null && value.toString().trim().isNotEmpty,
+                )
+                .length;
+        return nonEmptyFeedbackCount.clamp(1, 5).toInt();
+      } catch (_) {
+        return 1;
+      }
+    }
+
     const fields = [
       'grammar_feedback',
       'vocabulary_feedback',

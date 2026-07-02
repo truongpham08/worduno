@@ -26,6 +26,16 @@ class DashboardLocalDataSourceImpl implements IDashboardLocalDataSource {
   @override
   Future<List<Map<String, Object?>>> getRecentCoachHistoryRows() async {
     final db = await _database.database;
-    return db.query('coach_history', orderBy: 'date DESC', limit: 3);
+    return db.rawQuery('''
+      SELECT
+        id,
+        date,
+        term_id AS word,
+        user_sentence,
+        response_json
+      FROM coach_feedback
+      ORDER BY date DESC
+      LIMIT 3
+    ''');
   }
 }
