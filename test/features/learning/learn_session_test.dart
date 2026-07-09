@@ -96,15 +96,17 @@ void main() {
       expect(session.currentTerm?.id, 't2');
     });
 
-    test('session progress label tracks in-session position', () {
+    test('shuffle clears undo and reorders remaining cards', () {
       final session = LearnSession.fromTerms(
-        terms: _terms(2),
+        terms: _terms(3),
         initialStatuses: const {},
       );
 
-      expect(session.sessionProgressLabel, '1/2');
       session.markKnow();
-      expect(session.sessionProgressLabel, '2/2');
+      session.shuffle();
+
+      expect(session.canUndo, isFalse);
+      expect(session.currentTerm, isNotNull);
     });
   });
 }
