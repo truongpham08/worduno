@@ -37,9 +37,9 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: (db, version) async {
-        await _createV5Schema(db);
+        await _createSchema(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
@@ -62,6 +62,9 @@ class AppDatabase {
             definition: 'INTEGER NOT NULL DEFAULT 0',
           );
         }
+        if (oldVersion < 6) {
+          await _createVocabularyTables(db);
+        }
       },
     );
   }
@@ -81,7 +84,54 @@ class AppDatabase {
     )
   ''';
 
-  Future<void> _createV5Schema(Database db) async {
+  static const _vocabularyLevelsTableSql = '''
+    CREATE TABLE vocabulary_levels (
+      code TEXT PRIMARY KEY,
+      sort_order INTEGER NOT NULL
+    )
+  ''';
+
+  static const _vocabularyUnitsTableSql = '''
+    CREATE TABLE vocabulary_units (
+      id TEXT PRIMARY KEY,
+      level_code TEXT NOT NULL,
+      name TEXT NOT NULL,
+      sort_order INTEGER NOT NULL
+    )
+  ''';
+
+  static const _vocabularyTermsTableSql = '''
+    CREATE TABLE vocabulary_terms (
+      id TEXT NOT NULL,
+      level_code TEXT NOT NULL,
+      unit_name TEXT NOT NULL,
+      unit_id TEXT NOT NULL,
+      text TEXT NOT NULL,
+      definition TEXT NOT NULL,
+      sort_order INTEGER NOT NULL,
+      PRIMARY KEY (level_code, unit_name, id)
+    )
+  ''';
+
+  static const _vocabularyCachedUnitsTableSql = '''
+    CREATE TABLE vocabulary_cached_units (
+      level_code TEXT NOT NULL,
+      unit_name TEXT NOT NULL,
+      PRIMARY KEY (level_code, unit_name)
+    )
+  ''';
+
+  Future<void> _createVocabularyTables(Database db) async {
+    await db.execute(_vocabularyLevelsTableSql);
+    await db.execute(_vocabularyUnitsTableSql);
+    await db.execute(_vocabularyTermsTableSql);
+    await db.execute(_vocabularyCachedUnitsTableSql);
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_vocabulary_units_level ON vocabulary_units(level_code)',
+    );
+  }
+
+  Future<void> _createSchema(Database db) async {
     await db.execute('''
       CREATE TABLE user_word_states (
         unit_id TEXT NOT NULL,
@@ -116,6 +166,7 @@ class AppDatabase {
     ''');
 
     await db.execute(_coachFeedbackTableSql);
+    await _createVocabularyTables(db);
   }
 
   Future<void> _addColumnIfMissing(

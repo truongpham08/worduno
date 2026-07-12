@@ -12,7 +12,7 @@ import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
 import '../../../../core/utils/sort_utils.dart';
-import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/tts/presentation/speak_term.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
 import '../../../../shared/word_state/domain/entities/user_word_state.dart';
 import '../../../../shared/word_state/domain/entities/word_status.dart';
@@ -127,16 +127,7 @@ class _TermListViewState extends State<_TermListView> {
     );
   }
 
-  Future<void> _speak(String text) async {
-    final ok = await TtsHelper.speak(text);
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to play audio. Please try again.'),
-        ),
-      );
-    }
-  }
+  Future<void> _speak(String text) => speakTermWithFeedback(context, text);
 
   @override
   void dispose() {

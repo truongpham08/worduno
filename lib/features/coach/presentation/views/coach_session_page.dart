@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
-import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/tts/presentation/speak_term.dart';
 import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
@@ -332,18 +332,7 @@ class _WordCard extends StatelessWidget {
                 ),
               ),
               _ListenButton(
-                onTap: () async {
-                  final ok = await TtsHelper.speak(word.term.text);
-                  if (!ok && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Unable to play audio. Please try again.',
-                        ),
-                      ),
-                    );
-                  }
-                },
+                onTap: () => speakTermWithFeedback(context, word.term.text),
               ),
             ],
           ),

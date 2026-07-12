@@ -7,7 +7,7 @@ import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
-import '../../../../core/utils/tts_helper.dart';
+import '../../../../core/tts/presentation/speak_term.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
 import '../viewmodels/learn_session_view_model.dart';
 
@@ -80,16 +80,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
   String? _markAnim;
   double _dragDx = 0;
 
-  Future<void> _speak(String text) async {
-    final ok = await TtsHelper.speak(text);
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to play audio. Please try again.'),
-        ),
-      );
-    }
-  }
+  Future<void> _speak(String text) => speakTermWithFeedback(context, text);
 
   Future<void> _markWithAnim(
     LearnSessionViewModel vm,

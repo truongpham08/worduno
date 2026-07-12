@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import '../../core/database/app_database.dart';
 import '../../core/network/connectivity_service.dart';
 import '../../core/network/dio_client.dart';
+import '../../core/tts/application/services/i_tts_service.dart';
+import '../../core/tts/application/services/tts_service_impl.dart';
 import '../../features/coach/application/services/coach_service_impl.dart';
 import '../../features/coach/application/services/i_coach_service.dart';
 import '../../features/coach/data/datasources/coach_ai_data_source_impl.dart';
@@ -36,7 +38,9 @@ import '../../features/learning/data/repositories/learn_repository_impl.dart';
 import '../../features/learning/domain/repositories/i_learn_repository.dart';
 import '../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../shared/vocabulary/application/services/vocabulary_service_impl.dart';
+import '../../shared/vocabulary/data/datasources/i_vocabulary_local_data_source.dart';
 import '../../shared/vocabulary/data/datasources/i_vocabulary_remote_data_source.dart';
+import '../../shared/vocabulary/data/datasources/vocabulary_local_data_source_impl.dart';
 import '../../shared/vocabulary/data/datasources/vocabulary_remote_data_source_impl.dart';
 import '../../shared/vocabulary/data/repositories/vocabulary_repository_impl.dart';
 import '../../shared/vocabulary/domain/repositories/i_vocabulary_repository.dart';
@@ -60,12 +64,19 @@ Future<void> setupDependencies() async {
     () => DioClient.create(connectivity: getIt<ConnectivityService>()),
   );
   getIt.registerLazySingleton<AppDatabase>(AppDatabase.new);
+  getIt.registerLazySingleton<ITtsService>(TtsServiceImpl.new);
 
   getIt.registerLazySingleton<IVocabularyRemoteDataSource>(
     () => VocabularyRemoteDataSourceImpl(getIt<Dio>()),
   );
+  getIt.registerLazySingleton<IVocabularyLocalDataSource>(
+    () => VocabularyLocalDataSourceImpl(getIt<AppDatabase>()),
+  );
   getIt.registerLazySingleton<IVocabularyRepository>(
-    () => VocabularyRepositoryImpl(getIt<IVocabularyRemoteDataSource>()),
+    () => VocabularyRepositoryImpl(
+      getIt<IVocabularyRemoteDataSource>(),
+      getIt<IVocabularyLocalDataSource>(),
+    ),
   );
   getIt.registerLazySingleton<IVocabularyService>(
     () => VocabularyServiceImpl(getIt<IVocabularyRepository>()),
@@ -154,4 +165,6 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<ICoachService>(
     () => CoachServiceImpl(getIt<ICoachRepository>()),
   );
+
+  await getIt<ITtsService>().init();
 }

@@ -154,3 +154,37 @@ class LexiaAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
+
+/// Icon action for [LexiaAppBar] with consistent white styling.
+class LexiaAppBarIconButton extends StatelessWidget {
+  const LexiaAppBarIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.isLoading = false,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: isLoading ? null : onPressed,
+      icon: isLoading
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.white,
+              ),
+            )
+          : Icon(icon, color: AppColors.white),
+    );
+  }
+}

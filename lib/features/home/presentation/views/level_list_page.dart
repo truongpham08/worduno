@@ -5,6 +5,7 @@ import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
+import '../../../../core/widgets/app_error_banner.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/app_navigation_widgets.dart';
@@ -49,7 +50,16 @@ class _LevelListPageState extends State<LevelListPage> {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      appBar: const LexiaAppBar(),
+      appBar: LexiaAppBar(
+        actions: [
+          LexiaAppBarIconButton(
+            icon: Icons.refresh_rounded,
+            tooltip: viewModel.reloadProgress ?? 'Reload vocabulary',
+            isLoading: viewModel.isReloading,
+            onPressed: viewModel.reloadLevels,
+          ),
+        ],
+      ),
       body: _buildBody(context, viewModel, filtered),
     );
   }
@@ -102,6 +112,55 @@ class _LevelListPageState extends State<LevelListPage> {
           ),
         ),
 
+        if (viewModel.isReloading && viewModel.reloadProgress != null)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius:
+                      BorderRadius.circular(AppDecorations.radiusMd),
+                  boxShadow: AppDecorations.shadowSm,
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.greenMid,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        viewModel.reloadProgress!,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.mid,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        if (viewModel.errorMessage != null && viewModel.levels.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: AppErrorBanner(message: viewModel.errorMessage!),
+            ),
+          ),
+
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
@@ -127,11 +186,11 @@ class _LevelListPageState extends State<LevelListPage> {
           ),
         ),
 
-        if (viewModel.isLoading)
+        if (viewModel.isLoading && viewModel.levels.isEmpty)
           const SliverFillRemaining(
             child: AppLoading(message: 'Loading levels...'),
           )
-        else if (viewModel.errorMessage != null)
+        else if (viewModel.errorMessage != null && viewModel.levels.isEmpty)
           SliverFillRemaining(
             child: AppErrorView(
               message: viewModel.errorMessage!,

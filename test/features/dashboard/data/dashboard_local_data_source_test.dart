@@ -22,7 +22,7 @@ void main() {
     dbPath = p.join(tempDir.path, 'worduno_test.db');
   });
 
-  tearDown(() {
+  tearDown(() async {
     if (tempDir.existsSync()) {
       tempDir.deleteSync(recursive: true);
     }
@@ -52,7 +52,7 @@ void main() {
 
       expect(rows, hasLength(1));
       expect(rows.single['id'], 'feedback-1');
-      expect(rows.single['word'], 'work out');
+      expect(rows.single['term_id'], 'work out');
       expect(rows.single['user_sentence'], 'I work out every morning.');
       expect(rows.single['response_json'], isNotEmpty);
 

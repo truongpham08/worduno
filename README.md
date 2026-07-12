@@ -1,6 +1,8 @@
-# Worduno
+# Lexia
 
 Flutter client for learning Destination vocabulary — flashcards, exams, and AI coach.
+
+> **Báo cáo tiến độ dự án:** xem [docs/report.md](docs/report.md) (kiến trúc, use case, ERD, tiến độ triển khai).
 
 ## Architecture
 
@@ -37,7 +39,7 @@ Each feature follows four layers:
 - **HTTP:** `dio`
 - **Local DB:** `sqflite`
 - **Navigation:** Flutter **Navigator 2.0** (`RouterDelegate` + `RouteInformationParser`)
-- **TTS:** `flutter_tts` (wire up in Learning/Home later)
+- **TTS:** `flutter_tts` via `ITtsService` (`core/tts/`) — term pronunciation on Term List, Learn, and Coach
 
 ## Backend
 
@@ -49,7 +51,7 @@ Vocabulary API: [destination-vocabulary-api.onrender.com/docs](https://destinati
 | `GET /api/{level}/units` | Units |
 | `GET /api/{level}/units/{unit_name}` | Terms |
 
-AI endpoints for Exam/Coach are stubbed in `features/exam/data` and `features/coach/data` until the backend publishes them.
+AI endpoints (Exam Cloze, Sentence Writing, Coach explain/evaluate) are integrated via `ExamAiDataSourceImpl` and `CoachAiDataSourceImpl` — see [report.md §7](docs/report.md#7-tích-hợp-api).
 
 ## Getting started
 
@@ -58,7 +60,7 @@ flutter pub get
 flutter run
 ```
 
-First run creates `worduno.db` with tables for word state, exam history, and coach history.
+First run creates `lexia.db` with tables for word state, exam history, and coach history.
 
 ## Feature map
 
@@ -82,6 +84,17 @@ Home tab uses a nested `Navigator` stack:
 
 Use `AppNavigationNotifier` (via `context.read`) to push home routes — do not call `Navigator.push` directly from Pages unless extending the router delegate.
 
-## Spec
+## Documentation
 
-See [docs/specs.md](docs/specs.md) for full functional requirements.
+| Document | Description |
+|----------|-------------|
+| [docs/report.md](docs/report.md) | Technical report for project review (architecture, use cases, ERD, progress) |
+| [docs/specs.md](docs/specs.md) | Full functional requirements (SRS) |
+
+## Tests
+
+```bash
+flutter test
+```
+
+Coverage focuses on Learn session rules, word-state persistence, exam grading, and network error handling — see [report.md §11](docs/report.md#11-kiểm-thử).

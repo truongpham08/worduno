@@ -11,4 +11,6 @@ abstract class IVocabularyRepository {
     required String levelCode,
     required String unitName,
   });
+
+  Future<void> clearCache();
 }
