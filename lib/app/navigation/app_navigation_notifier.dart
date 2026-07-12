@@ -115,15 +115,22 @@ class AppNavigationNotifier extends ChangeNotifier {
 
   void startCoachFromHistory() {
     _configuration = _configuration.copyWith(
-      tab: AppTab.home,
-      homeStack: const [
-        HomeStackEntry(HomeRoutePaths.levelList, {}),
-        HomeStackEntry(HomeRoutePaths.coachConfig, {}),
+      tab: AppTab.coachHistory,
+      coachStack: const [
+        CoachStackEntry(CoachRoutePaths.list, {}),
+        CoachStackEntry(CoachRoutePaths.config, {}),
       ],
       clearExamDetail: true,
-      clearCoachStack: true,
     );
     notifyListeners();
+  }
+
+  void openCoachSession() {
+    if (_configuration.tab == AppTab.coachHistory) {
+      _openCoachRoute(CoachRoutePaths.session, const {});
+      return;
+    }
+    openHomeRoute(HomeRoutePaths.coachSession);
   }
 
   void completeCoachSessionAndOpenHistory() {

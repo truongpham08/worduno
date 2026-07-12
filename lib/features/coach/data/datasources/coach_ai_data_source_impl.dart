@@ -29,7 +29,7 @@ class CoachAiDataSourceImpl implements ICoachAiDataSource {
       throw AppException(messageFromDioException(error));
     } catch (error) {
       if (error is AppException) rethrow;
-      throw AppException('Failed to explain word: $error');
+      throw AppException(messageFromError(error));
     }
   }
 
@@ -52,7 +52,7 @@ class CoachAiDataSourceImpl implements ICoachAiDataSource {
       throw AppException(messageFromDioException(error));
     } catch (error) {
       if (error is AppException) rethrow;
-      throw AppException('Failed to evaluate sentence: $error');
+      throw AppException(messageFromError(error));
     }
   }
 }

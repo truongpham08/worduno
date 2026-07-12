@@ -1,3 +1,4 @@
+import '../network/dio_error_message.dart';
 import 'app_exception.dart';
 
 sealed class Failure {
@@ -22,5 +23,5 @@ Failure mapExceptionToFailure(Object error) {
   if (error is AppException) {
     return ServerFailure(error.message);
   }
-  return UnknownFailure(error.toString());
+  return UnknownFailure(messageFromError(error));
 }

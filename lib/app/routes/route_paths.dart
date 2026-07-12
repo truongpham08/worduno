@@ -25,6 +25,8 @@ class CoachRoutePaths {
   static const list = '/';
   static const word = '/word';
   static const feedback = '/feedback';
+  static const config = '/config';
+  static const session = '/session';
 }
 
 class HomeStackEntry {

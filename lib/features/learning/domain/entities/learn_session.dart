@@ -41,21 +41,30 @@ class LearnSession {
       }
     }
 
-    return LearnSession._(round, <Term>[], statuses, terms.length, 0);
+    return LearnSession._(
+      round,
+      <Term>[],
+      statuses,
+      terms.length,
+      round.length,
+      0,
+    );
   }
 
   List<Term> _round;
   List<Term> _next;
   final Map<String, WordStatus> _statuses;
   final int totalCards;
-  int _advanceCount;
+  int _roundSize;
+  int _processedInRound;
 
   LearnSession._(
     this._round,
     this._next,
     this._statuses,
     this.totalCards,
-    this._advanceCount,
+    this._roundSize,
+    this._processedInRound,
   );
 
   final List<_SessionSnapshot> _undoStack = [];
@@ -77,17 +86,20 @@ class LearnSession {
   /// Cards remaining in the active session queue (current round + requeued).
   int get activeQueueLength => _round.length + _next.length;
 
-  /// In-session position progress (preview-style idx / deck length).
+  /// In-session position progress within the current round.
   double get sessionProgress {
-    final total = _advanceCount + activeQueueLength;
-    if (total == 0) return 1;
-    return _advanceCount / total;
+    if (isCompleted) return 1;
+    if (_roundSize == 0) return 1;
+    return _processedInRound / _roundSize;
   }
 
   String get sessionProgressLabel {
-    final total = _advanceCount + activeQueueLength;
-    if (total == 0) return '$totalCards/$totalCards';
-    return '${_advanceCount + 1}/$total';
+    if (isCompleted) {
+      final size = _roundSize == 0 ? totalCards : _roundSize;
+      return '$size/$size';
+    }
+    if (_roundSize == 0) return '0/0';
+    return '${_processedInRound + 1}/$_roundSize';
   }
 
   WordStatus statusOf(String termId) =>
@@ -109,14 +121,17 @@ class LearnSession {
       _next.add(term);
     }
 
+    _processedInRound++;
+
     // When the current round is exhausted, promote the requeued (Learning)
     // cards into a new round so they reappear (spec §6).
     if (_round.isEmpty && _next.isNotEmpty) {
       _round = _next;
       _next = <Term>[];
+      _roundSize = _round.length;
+      _processedInRound = 0;
     }
 
-    _advanceCount++;
     return term;
   }
 
@@ -128,7 +143,8 @@ class LearnSession {
     _round = snapshot.round;
     _next = snapshot.next;
     _statuses[snapshot.termId] = snapshot.previousStatus;
-    _advanceCount = snapshot.advanceCount;
+    _roundSize = snapshot.roundSize;
+    _processedInRound = snapshot.processedInRound;
 
     return (termId: snapshot.termId, status: snapshot.previousStatus);
   }
@@ -147,7 +163,8 @@ class LearnSession {
         next: List.of(_next),
         termId: term.id,
         previousStatus: statusOf(term.id),
-        advanceCount: _advanceCount,
+        roundSize: _roundSize,
+        processedInRound: _processedInRound,
       ),
     );
   }
@@ -159,12 +176,14 @@ class _SessionSnapshot {
     required this.next,
     required this.termId,
     required this.previousStatus,
-    required this.advanceCount,
+    required this.roundSize,
+    required this.processedInRound,
   });
 
   final List<Term> round;
   final List<Term> next;
   final String termId;
   final WordStatus previousStatus;
-  final int advanceCount;
+  final int roundSize;
+  final int processedInRound;
 }

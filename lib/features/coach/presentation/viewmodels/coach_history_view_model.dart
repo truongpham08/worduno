@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../application/services/i_coach_service.dart';
 import '../../domain/entities/coach_entities.dart';
 
@@ -36,7 +37,7 @@ class CoachHistoryViewModel extends ChangeNotifier {
     try {
       terms = await _coachService.loadCoachedTerms();
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -115,7 +116,7 @@ class CoachWordHistoryViewModel extends ChangeNotifier {
         errorMessage = 'Term not found in coach history.';
       }
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -176,7 +177,7 @@ class CoachFeedbackDetailViewModel extends ChangeNotifier {
         errorMessage = 'Feedback not found.';
       }
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();

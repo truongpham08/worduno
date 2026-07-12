@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
-import '../../../../app/routes/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_banner.dart';
@@ -51,9 +50,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
     try {
       await _viewModel.startSession();
       if (!context.mounted) return;
-      context.read<AppNavigationNotifier>().openHomeRoute(
-            HomeRoutePaths.coachSession,
-          );
+      context.read<AppNavigationNotifier>().openCoachSession();
     } catch (_) {
       // Error shown via view model.
     }
@@ -158,7 +155,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                   Text(
                     vm.availableWordCount == 0
                         ? 'No words available for the current filters.'
-                        : '${vm.availableWordCount} words available • select 1–${vm.availableWordCount}',
+                        : '${vm.availableWordCount} words available • select 1–${vm.maxSelectableWordCount}',
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.mid,
@@ -187,9 +184,9 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                         child: Slider(
                           value: vm.wordCount.toDouble(),
                           min: 1,
-                          max: vm.availableWordCount.toDouble(),
-                          divisions: vm.availableWordCount > 1
-                              ? vm.availableWordCount - 1
+                          max: vm.maxSelectableWordCount.toDouble(),
+                          divisions: vm.maxSelectableWordCount > 1
+                              ? vm.maxSelectableWordCount - 1
                               : 1,
                           activeColor: AppColors.coralMid,
                           label: '${vm.wordCount}',
@@ -197,7 +194,7 @@ class _CoachConfigPageState extends State<CoachConfigPage> {
                         ),
                       ),
                       IconButton(
-                        onPressed: vm.wordCount < vm.availableWordCount
+                        onPressed: vm.wordCount < vm.maxSelectableWordCount
                             ? () => vm.setWordCount(vm.wordCount + 1)
                             : null,
                         icon: const Icon(Icons.add_circle_outline),

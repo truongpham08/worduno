@@ -1,9 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../app/navigation/app_navigation_notifier.dart';
 import '../../../../app/routes/route_paths.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_decorations.dart';
 import '../../../../core/widgets/app_error_view.dart';
@@ -23,6 +25,8 @@ import '../viewmodels/term_list_view_model.dart';
 enum _ViewMode { list, flashcard }
 
 enum _FilterMode { all, learned, learning, newWord, starred }
+
+enum _FlashcardFace { term, definition }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Page entry point — owns ViewModel lifecycle
@@ -92,6 +96,7 @@ class _TermListViewState extends State<_TermListView> {
   _ViewMode _viewMode = _ViewMode.list;
   _FilterMode _filter = _FilterMode.all;
   SortOrder _sort = SortOrder.original;
+  _FlashcardFace _defaultFace = _FlashcardFace.term;
 
   @override
   void initState() {
@@ -99,7 +104,30 @@ class _TermListViewState extends State<_TermListView> {
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text.toLowerCase());
     });
+    _loadDefaultFace();
   }
+
+  Future<void> _loadDefaultFace() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(AppConstants.flashcardDefaultFaceKey);
+    if (!mounted) return;
+    setState(() {
+      _defaultFace = raw == 'definition'
+          ? _FlashcardFace.definition
+          : _FlashcardFace.term;
+    });
+  }
+
+  Future<void> _setDefaultFace(_FlashcardFace face) async {
+    setState(() => _defaultFace = face);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      AppConstants.flashcardDefaultFaceKey,
+      face == _FlashcardFace.definition ? 'definition' : 'term',
+    );
+  }
+
+  Future<void> _speak(String text) => speakTermWithFeedback(context, text);
 
   @override
   void dispose() {
@@ -279,6 +307,38 @@ class _TermListViewState extends State<_TermListView> {
                 ),
               ),
 
+              if (_viewMode == _ViewMode.flashcard)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                    child: Row(
+                      children: [
+                        const Text(
+                          'Default face:',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.mid,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        _FilterChip2(
+                          label: 'Term',
+                          selected: _defaultFace == _FlashcardFace.term,
+                          onTap: () => _setDefaultFace(_FlashcardFace.term),
+                        ),
+                        const SizedBox(width: 8),
+                        _FilterChip2(
+                          label: 'Definition',
+                          selected: _defaultFace == _FlashcardFace.definition,
+                          onTap: () =>
+                              _setDefaultFace(_FlashcardFace.definition),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
               // ── Sort chips (spec §11) ───────────────────────────
               SliverToBoxAdapter(
                 child: Padding(
@@ -385,6 +445,7 @@ class _TermListViewState extends State<_TermListView> {
                                 child: _TermCard(
                                   term: term,
                                   state: vm.getWordState(term.id),
+                                  onSpeak: () => _speak(term.text),
                                   onStarTapped: () => vm.toggleStar(term.id),
                                   onKnowTapped: () =>
                                       vm.updateStatus(term.id, WordStatus.know),
@@ -415,9 +476,14 @@ class _TermListViewState extends State<_TermListView> {
                             (context, i) {
                               final term = displayTerms[i];
                               return _FlashcardListItem(
-                                key: ValueKey('fc-${term.id}'),
+                                key: ValueKey(
+                                  'fc-${term.id}-${_defaultFace.name}',
+                                ),
                                 term: term,
                                 state: vm.getWordState(term.id),
+                                startOnDefinition:
+                                    _defaultFace == _FlashcardFace.definition,
+                                onSpeak: () => _speak(term.text),
                                 onStarTapped: () => vm.toggleStar(term.id),
                                 onKnowTapped: () =>
                                     vm.updateStatus(term.id, WordStatus.know),
@@ -671,6 +737,7 @@ class _TermCard extends StatelessWidget {
   const _TermCard({
     required this.term,
     required this.state,
+    required this.onSpeak,
     required this.onStarTapped,
     required this.onKnowTapped,
     required this.onLearningTapped,
@@ -678,6 +745,7 @@ class _TermCard extends StatelessWidget {
 
   final Term term;
   final UserWordState state;
+  final VoidCallback onSpeak;
   final VoidCallback onStarTapped;
   final VoidCallback onKnowTapped;
   final VoidCallback onLearningTapped;
@@ -762,7 +830,7 @@ class _TermCard extends StatelessWidget {
                         size: 19, color: AppColors.light),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    onPressed: () => speakTermWithFeedback(context, term.text),
+                    onPressed: onSpeak,
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
@@ -880,6 +948,8 @@ class _FlashcardListItem extends StatefulWidget {
     super.key,
     required this.term,
     required this.state,
+    required this.startOnDefinition,
+    required this.onSpeak,
     required this.onStarTapped,
     required this.onKnowTapped,
     required this.onLearningTapped,
@@ -887,6 +957,8 @@ class _FlashcardListItem extends StatefulWidget {
 
   final Term term;
   final UserWordState state;
+  final bool startOnDefinition;
+  final VoidCallback onSpeak;
   final VoidCallback onStarTapped;
   final VoidCallback onKnowTapped;
   final VoidCallback onLearningTapped;
@@ -896,7 +968,13 @@ class _FlashcardListItem extends StatefulWidget {
 }
 
 class _FlashcardListItemState extends State<_FlashcardListItem> {
-  bool _isFlipped = false;
+  late bool _isFlipped;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFlipped = widget.startOnDefinition;
+  }
 
   String get _statusKey {
     return switch (widget.state.status) {
@@ -971,7 +1049,7 @@ class _FlashcardListItemState extends State<_FlashcardListItem> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () => speakTermWithFeedback(context, widget.term.text),
+                  onTap: widget.onSpeak,
                   child: Container(
                     width: 38,
                     height: 38,

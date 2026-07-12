@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/vocabulary/domain/entities/unit.dart';
 import '../../../../shared/word_state/application/services/word_state_store.dart';
@@ -88,7 +89,7 @@ class UnitListViewModel extends ChangeNotifier {
 
       _baseUnits = await Future.wait(futureUnits);
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();

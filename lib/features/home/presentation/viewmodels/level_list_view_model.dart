@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 
 import '../../../../app/di/injection.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../../../core/utils/async_utils.dart';
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/vocabulary/domain/entities/level.dart';
@@ -97,7 +98,7 @@ class LevelListViewModel extends ChangeNotifier {
     try {
       await _fetchLevels();
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -118,7 +119,7 @@ class LevelListViewModel extends ChangeNotifier {
       await _vocabularyService.clearCache();
       await _fetchLevels(trackProgress: true);
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isReloading = false;
       reloadProgress = null;

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/vocabulary/domain/entities/term.dart';
 import '../../../../shared/word_state/application/services/word_state_store.dart';
@@ -75,7 +76,7 @@ class TermListViewModel extends ChangeNotifier {
 
       await _store.ensureLoaded(_unitId);
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();

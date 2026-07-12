@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/network/dio_error_message.dart';
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/vocabulary/domain/entities/level.dart';
@@ -157,11 +158,23 @@ class CoachConfigViewModel extends ChangeNotifier {
   }
 
   void setWordCount(int value) {
-    final clamped = value.clamp(1, availableWordCount > 0 ? availableWordCount : 1);
+    final maxAllowed = availableWordCount <= 0
+        ? 1
+        : (availableWordCount < AppConstants.maxCoachWordCount
+            ? availableWordCount
+            : AppConstants.maxCoachWordCount);
+    final clamped = value.clamp(1, maxAllowed);
     if (wordCount != clamped) {
       wordCount = clamped;
       notifyListeners();
     }
+  }
+
+  int get maxSelectableWordCount {
+    if (availableWordCount <= 0) return 1;
+    return availableWordCount < AppConstants.maxCoachWordCount
+        ? availableWordCount
+        : AppConstants.maxCoachWordCount;
   }
 
   CoachSessionConfig buildConfig() {
@@ -270,7 +283,7 @@ class CoachConfigViewModel extends ChangeNotifier {
     try {
       availableWordCount = await _coachService.countAvailableWords(buildConfig());
       if (availableWordCount > 0) {
-        wordCount = wordCount.clamp(1, availableWordCount);
+        wordCount = wordCount.clamp(1, maxSelectableWordCount);
       }
     } catch (error) {
       availableWordCount = 0;

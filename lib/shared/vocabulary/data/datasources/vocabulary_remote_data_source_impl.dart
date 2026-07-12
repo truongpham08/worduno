@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../dtos/level_dto.dart';
 import '../dtos/term_dto.dart';
 import '../dtos/unit_dto.dart';
@@ -26,8 +27,17 @@ class VocabularyRemoteDataSourceImpl implements IVocabularyRemoteDataSource {
             .toList(growable: false);
       }
       return const [];
+    } on DioException catch (error) {
+      throw AppException(
+        messageFromDioException(error),
+        code: 'levels_load_failed',
+      );
     } catch (error) {
-      throw AppException('Failed to load levels: $error');
+      if (error is AppException) rethrow;
+      throw AppException(
+        messageFromError(error),
+        code: 'levels_load_failed',
+      );
     }
   }
 
@@ -51,8 +61,17 @@ class VocabularyRemoteDataSourceImpl implements IVocabularyRemoteDataSource {
             .toList(growable: false);
       }
       return const [];
+    } on DioException catch (error) {
+      throw AppException(
+        messageFromDioException(error),
+        code: 'units_load_failed',
+      );
     } catch (error) {
-      throw AppException('Failed to load units: $error');
+      if (error is AppException) rethrow;
+      throw AppException(
+        messageFromError(error),
+        code: 'units_load_failed',
+      );
     }
   }
 
@@ -75,8 +94,17 @@ class VocabularyRemoteDataSourceImpl implements IVocabularyRemoteDataSource {
             .toList(growable: false);
       }
       return const [];
+    } on DioException catch (error) {
+      throw AppException(
+        messageFromDioException(error),
+        code: 'terms_load_failed',
+      );
     } catch (error) {
-      throw AppException('Failed to load terms: $error');
+      if (error is AppException) rethrow;
+      throw AppException(
+        messageFromError(error),
+        code: 'terms_load_failed',
+      );
     }
   }
 }

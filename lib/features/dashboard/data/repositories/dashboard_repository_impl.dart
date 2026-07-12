@@ -165,12 +165,15 @@ class DashboardRepositoryImpl implements IDashboardRepository {
     final recentExams = rows
         .take(3)
         .map((row) {
-          final unitId = row['unit_id'] as String? ?? '';
+          final rawUnitId = row['unit_id'] as String? ?? '';
+          final unit = _decodeExamUnit(rawUnitId);
           return RecentExamItem(
             id: row['id'] as String? ?? '',
             dateLabel: _dateLabel(row['date'] as String?),
-            unitId: unitId,
-            unitName: unitNameById[unitId] ?? unitId,
+            unitId: unit.id,
+            unitName: unit.label.isNotEmpty
+                ? unit.label
+                : (unitNameById[unit.id] ?? unit.id),
             score: _normalizeScore((row['score'] as num? ?? 0).toDouble()),
             questionCount: row['question_count'] as int? ?? 0,
           );
@@ -312,6 +315,18 @@ class DashboardRepositoryImpl implements IDashboardRepository {
       'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}';
+  }
+
+  ({String id, String label}) _decodeExamUnit(String raw) {
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return (
+        id: map['id'] as String? ?? raw,
+        label: map['label'] as String? ?? raw,
+      );
+    } catch (_) {
+      return (id: raw, label: raw);
+    }
   }
 }
 

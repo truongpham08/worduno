@@ -54,6 +54,26 @@ void main() {
       expect(result.isCorrect, isTrue);
     });
 
+    test('grades english to english ignoring POS tags', () async {
+      const question = ExamQuestion(
+        id: 'q2b',
+        type: ExamQuestionType.englishToEnglish,
+        prompt: 'a person or organization that employs people',
+        termId: '1',
+        termText: 'employer (n)',
+        definition: 'a person or organization that employs people',
+        correctAnswer: 'employer',
+      );
+
+      final withoutTag =
+          await grader.grade(question: question, rawAnswer: 'employer');
+      final withTag =
+          await grader.grade(question: question, rawAnswer: 'employer (n)');
+
+      expect(withoutTag.isCorrect, isTrue);
+      expect(withTag.isCorrect, isTrue);
+    });
+
     test('grades english to vietnamese using definition synonyms', () async {
       const question = ExamQuestion(
         id: 'q3',

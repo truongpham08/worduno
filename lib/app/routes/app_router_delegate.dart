@@ -192,6 +192,12 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       CoachRoutePaths.feedback => CoachFeedbackDetailPage(
           feedbackId: entry.params['feedbackId'] ?? '',
         ),
+      CoachRoutePaths.config => CoachConfigPage(
+          levelCode: entry.params['level'],
+          unitName: entry.params['unit'],
+          unitId: entry.params['unitId'],
+        ),
+      CoachRoutePaths.session => const CoachSessionPage(),
       _ => const Scaffold(
           body: Center(child: Text('Unknown coach route')),
         ),

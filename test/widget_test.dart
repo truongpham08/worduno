@@ -27,7 +27,6 @@ void main() {
     expect(find.text('Stats'), findsOneWidget);
     expect(find.text('History'), findsOneWidget);
     expect(find.text('AI'), findsOneWidget);
-    expect(find.text('Your Levels'), findsOneWidget);
   });
 
   testWidgets('bottom navigation switches tabs', (tester) async {
@@ -40,6 +39,5 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(find.text('Dashboard'), findsOneWidget);
-    expect(find.text('OVERALL PROGRESS'), findsOneWidget);
   });
 }

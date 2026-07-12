@@ -78,6 +78,9 @@ class _LearnSessionView extends StatefulWidget {
 
 class _LearnSessionViewState extends State<_LearnSessionView> {
   String? _markAnim;
+  double _dragDx = 0;
+
+  Future<void> _speak(String text) => speakTermWithFeedback(context, text);
 
   Future<void> _markWithAnim(
     LearnSessionViewModel vm,
@@ -377,15 +380,24 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
             child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: _markAnim == null ? vm.flipCard : null,
+              onHorizontalDragStart: (_) {
+                _dragDx = 0;
+              },
+              onHorizontalDragUpdate: (details) {
+                _dragDx += details.delta.dx;
+              },
               onHorizontalDragEnd: (details) {
                 if (_markAnim != null) return;
                 final velocity = details.primaryVelocity ?? 0;
-                if (velocity < -200) {
+                // Prefer distance for slow swipes; velocity for flicks.
+                if (_dragDx <= -64 || velocity < -200) {
                   _markWithAnim(vm, vm.markKnow, 'know');
-                } else if (velocity > 200) {
+                } else if (_dragDx >= 64 || velocity > 200) {
                   _markWithAnim(vm, vm.markLearning, 'learning');
                 }
+                _dragDx = 0;
               },
               child: TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0, end: vm.isFlipped ? math.pi : 0),
@@ -425,7 +437,7 @@ class _LearnSessionViewState extends State<_LearnSessionView> {
 
         // ── Audio speaker control ──────────────────────────────────
         _ScaleButton(
-          onTap: () => speakTermWithFeedback(context, currentTerm.text),
+          onTap: () => _speak(currentTerm.text),
           child: Container(
             width: 52,
             height: 52,

@@ -108,5 +108,17 @@ void main() {
       expect(session.canUndo, isFalse);
       expect(session.currentTerm, isNotNull);
     });
+
+    test('Still Learning does not inflate the progress denominator', () {
+      final session = LearnSession.fromTerms(
+        terms: _terms(2),
+        initialStatuses: const {},
+      );
+
+      expect(session.sessionProgressLabel, '1/2');
+      session.markLearning();
+      expect(session.sessionProgressLabel, '2/2');
+      expect(session.activeQueueLength, 2);
+    });
   });
 }

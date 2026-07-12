@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../dtos/exam_ai_dtos.dart';
 import 'i_exam_ai_data_source.dart';
 
@@ -28,7 +29,13 @@ class ExamAiDataSourceImpl implements IExamAiDataSource {
       return ClozeResponseDto.fromJson(response.data!);
     } on DioException catch (error) {
       throw AppException(
-        error.message ?? 'Failed to generate cloze question.',
+        messageFromDioException(error),
+        code: 'exam_cloze_failed',
+      );
+    } catch (error) {
+      if (error is AppException) rethrow;
+      throw AppException(
+        messageFromError(error),
         code: 'exam_cloze_failed',
       );
     }
@@ -52,7 +59,13 @@ class ExamAiDataSourceImpl implements IExamAiDataSource {
       return EvaluateSentenceResponseDto.fromJson(response.data!);
     } on DioException catch (error) {
       throw AppException(
-        error.message ?? 'Failed to evaluate sentence.',
+        messageFromDioException(error),
+        code: 'exam_evaluate_sentence_failed',
+      );
+    } catch (error) {
+      if (error is AppException) rethrow;
+      throw AppException(
+        messageFromError(error),
         code: 'exam_evaluate_sentence_failed',
       );
     }

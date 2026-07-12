@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../../../app/di/injection.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../domain/entities/dashboard_data.dart';
 import '../../application/services/i_dashboard_service.dart';
 
@@ -21,7 +22,7 @@ class DashboardViewModel extends ChangeNotifier {
     try {
       data = await _dashboardService.getDashboardData();
     } catch (e) {
-      errorMessage = e.toString();
+      errorMessage = messageFromError(e);
     } finally {
       isLoading = false;
       notifyListeners();

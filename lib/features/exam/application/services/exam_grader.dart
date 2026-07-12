@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../../../../core/errors/app_exception.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../data/datasources/i_exam_ai_data_source.dart';
 import '../../domain/entities/exam_question.dart';
 import '../../domain/entities/exam_question_type.dart';
@@ -11,6 +13,12 @@ class ExamGrader {
   final IExamAiDataSource _aiDataSource;
 
   static const int sentencePassScore = 7;
+
+  /// Matches trailing POS tags like " (n)", " (v)", " (adj)".
+  static final RegExp _posTagPattern = RegExp(
+    r'\s*\((?:n|v|adj|adv|prep|conj|pron|interj|phrase|phr)\.?\)\s*$',
+    caseSensitive: false,
+  );
 
   Future<GradedAnswer> grade({
     required ExamQuestion question,
@@ -78,7 +86,9 @@ class ExamGrader {
   }
 
   GradedAnswer _gradeEnglishToEnglish(ExamQuestion question, String answer) {
-    final isCorrect = _normalize(answer) == _normalize(question.termText);
+    final expected = _stripPosTag(question.termText);
+    final isCorrect = _normalize(answer) == _normalize(expected) ||
+        _normalize(answer) == _normalize(question.termText);
     return GradedAnswer(
       question: question,
       userAnswer: answer,
@@ -113,14 +123,24 @@ class ExamGrader {
         feedback: evaluation.feedbackText,
         score: evaluation.score,
       );
+    } on AppException {
+      rethrow;
     } catch (error) {
-      final containsWord =
-          answer.toLowerCase().contains(question.termText.toLowerCase());
+      final mapped = messageFromError(error);
+      if (mapped == kNoInternetMessage ||
+          mapped == kTimeoutMessage ||
+          mapped == kAiUnavailableMessage ||
+          mapped.startsWith('Server error')) {
+        throw AppException(mapped);
+      }
+      final target = _stripPosTag(question.termText).toLowerCase();
+      final containsWord = answer.toLowerCase().contains(target);
       return GradedAnswer(
         question: question,
         userAnswer: answer,
         isCorrect: containsWord,
-        feedback: 'AI evaluation unavailable. Accepted if the target word appears.',
+        feedback:
+            'AI evaluation unavailable. Accepted if the target word appears.',
         score: containsWord ? sentencePassScore : 0,
       );
     }
@@ -156,6 +176,10 @@ class ExamGrader {
         .map((part) => part.trim())
         .where((part) => part.isNotEmpty)
         .toList();
+  }
+
+  String _stripPosTag(String value) {
+    return value.replaceFirst(_posTagPattern, '').trim();
   }
 
   String _normalize(String value) => value.trim().toLowerCase();

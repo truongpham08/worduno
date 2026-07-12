@@ -106,9 +106,19 @@ class ExamQuestionGenerator {
       ExamQuestionType.englishToVietnamese =>
         _buildFreeText(index, type, term, correctAnswer: term.definition),
       ExamQuestionType.englishToEnglish =>
-        _buildFreeText(index, type, term, correctAnswer: term.text),
+        _buildFreeText(
+          index,
+          type,
+          term,
+          correctAnswer: _stripPosTag(term.text),
+        ),
       ExamQuestionType.sentenceWritingAi =>
-        _buildFreeText(index, type, term, correctAnswer: term.text),
+        _buildFreeText(
+          index,
+          type,
+          term,
+          correctAnswer: _stripPosTag(term.text),
+        ),
       ExamQuestionType.matching => throw StateError('Use matching block.'),
     };
   }
@@ -160,39 +170,22 @@ class ExamQuestionGenerator {
     ExamSourceTerm term,
     String levelCode,
   ) async {
-    try {
-      final cloze = await _aiDataSource.generateCloze(
-        word: term.text,
-        definition: term.definition,
-        level: levelCode,
-      );
-      return ExamQuestion(
-        id: 'q_$index',
-        type: ExamQuestionType.clozeAi,
-        prompt: cloze.sentence,
-        termId: term.termId,
-        termText: term.text,
-        definition: term.definition,
-        options: cloze.options,
-        correctAnswer: cloze.correctAnswer,
-        clozeSentence: cloze.sentence,
-      );
-    } catch (_) {
-      final fallbackSentence =
-          'She felt very _____ after hearing the good news.';
-      final options = [term.text, 'quickly', 'because', 'under']..shuffle(_random);
-      return ExamQuestion(
-        id: 'q_$index',
-        type: ExamQuestionType.clozeAi,
-        prompt: fallbackSentence,
-        termId: term.termId,
-        termText: term.text,
-        definition: term.definition,
-        options: options,
-        correctAnswer: term.text,
-        clozeSentence: fallbackSentence,
-      );
-    }
+    final cloze = await _aiDataSource.generateCloze(
+      word: term.text,
+      definition: term.definition,
+      level: levelCode,
+    );
+    return ExamQuestion(
+      id: 'q_$index',
+      type: ExamQuestionType.clozeAi,
+      prompt: cloze.sentence,
+      termId: term.termId,
+      termText: term.text,
+      definition: term.definition,
+      options: cloze.options,
+      correctAnswer: cloze.correctAnswer,
+      clozeSentence: cloze.sentence,
+    );
   }
 
   ExamQuestion _buildFreeText(
@@ -210,6 +203,15 @@ class ExamQuestionGenerator {
       definition: term.definition,
       correctAnswer: correctAnswer,
     );
+  }
+
+  static final RegExp _posTagPattern = RegExp(
+    r'\s*\((?:n|v|adj|adv|prep|conj|pron|interj|phrase|phr)\.?\)\s*$',
+    caseSensitive: false,
+  );
+
+  String _stripPosTag(String value) {
+    return value.replaceFirst(_posTagPattern, '').trim();
   }
 
   ExamQuestion _buildMatchingQuestion(int index, List<ExamSourceTerm> block) {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../../../../app/di/injection.dart';
+import '../../../../core/network/dio_error_message.dart';
 import '../../application/services/i_exam_service.dart';
 import '../../domain/entities/exam_config.dart';
 import '../../domain/entities/exam_history.dart';
@@ -71,7 +72,7 @@ class ExamConfigViewModel extends ChangeNotifier {
       }
       await _loadUnits();
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -102,7 +103,7 @@ class ExamConfigViewModel extends ChangeNotifier {
         selectedUnitId = units.isEmpty ? null : units.first.id;
       }
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     }
     notifyListeners();
   }
@@ -169,7 +170,7 @@ class ExamConfigViewModel extends ChangeNotifier {
     try {
       return await _examService.prepareExam(buildConfig());
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
       rethrow;
     } finally {
       isStarting = false;
@@ -215,7 +216,7 @@ class ExamSessionViewModel extends ChangeNotifier {
         ),
       );
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
       rethrow;
     } finally {
       isSubmitting = false;
@@ -258,7 +259,7 @@ class ExamHistoryViewModel extends ChangeNotifier {
     try {
       items = await _examService.getHistory();
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();
@@ -295,7 +296,7 @@ class ExamDetailViewModel extends ChangeNotifier {
         errorMessage = 'Exam not found.';
       }
     } catch (error) {
-      errorMessage = error.toString();
+      errorMessage = messageFromError(error);
     } finally {
       isLoading = false;
       notifyListeners();

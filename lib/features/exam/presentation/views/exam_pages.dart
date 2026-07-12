@@ -624,6 +624,7 @@ class _MatchingInputState extends State<_MatchingInput> {
               Expanded(
                 flex: 3,
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   value: _selections[pair.termId],
                   decoration: _inputDecoration('Definition'),
                   items: widget.definitions
@@ -638,6 +639,20 @@ class _MatchingInputState extends State<_MatchingInput> {
                         ),
                       )
                       .toList(),
+                  selectedItemBuilder: (context) {
+                    return widget.definitions
+                        .map(
+                          (definition) => Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              definition,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList();
+                  },
                   onChanged: (value) => _update(pair.termId, value),
                 ),
               ),
@@ -908,6 +923,7 @@ class ExamHistoryPage extends StatefulWidget {
 
 class _ExamHistoryPageState extends State<ExamHistoryPage> {
   late final ExamHistoryViewModel _viewModel;
+  String? _lastExamDetailId;
 
   @override
   void initState() {
@@ -926,6 +942,15 @@ class _ExamHistoryPageState extends State<ExamHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final examDetailId =
+        context.watch<AppNavigationNotifier>().configuration.examDetailId;
+    if (_lastExamDetailId != null && examDetailId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _viewModel.load();
+      });
+    }
+    _lastExamDetailId = examDetailId;
+
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
@@ -1444,10 +1469,44 @@ InputDecoration _inputDecoration(String hint) {
       borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
       borderSide: BorderSide.none,
     ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
+      borderSide: BorderSide.none,
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppDecorations.radiusSm),
+      borderSide: const BorderSide(color: AppColors.greenMid, width: 1.5),
+    ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
   );
 }
 
 String _formatDate(DateTime date) {
-  return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  final today = DateTime.now();
+  final currentDate = DateTime(today.year, today.month, today.day);
+  final targetDate = DateTime(date.year, date.month, date.day);
+  final daysAgo = currentDate.difference(targetDate).inDays;
+
+  if (daysAgo == 0) {
+    return 'Today';
+  }
+  if (daysAgo == 1) {
+    return 'Yesterday';
+  }
+
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return '${months[date.month - 1]} ${date.day}';
 }

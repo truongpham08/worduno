@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../shared/vocabulary/application/services/i_vocabulary_service.dart';
 import '../../../../shared/vocabulary/domain/entities/unit.dart';
 import '../../../../shared/word_state/application/services/word_state_store.dart';
@@ -38,7 +39,10 @@ class CoachRepositoryImpl implements ICoachRepository {
       throw StateError('No words match the selected filters.');
     }
 
-    final count = config.wordCount.clamp(1, pool.length);
+    final maxCount = pool.length < AppConstants.maxCoachWordCount
+        ? pool.length
+        : AppConstants.maxCoachWordCount;
+    final count = config.wordCount.clamp(1, maxCount);
     final shuffled = List<CoachWord>.from(pool)..shuffle(_random);
     return CoachSession(
       words: shuffled.take(count).toList(growable: false),
